@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# logs & scratch
+*.log
+*.bak
+.playwright-cli/
+
+# secrets & machine state — must never reach the public repo
+# (mirrors scripts/audit.sh; gitignore prevents staging, audit catches the rest)
+.audit-deny
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+auth.json
+models.json
+models-store.json
+trust.json
+spend-state.json
+run-history.jsonl
+.skill-lock.json
+sessions/
+journal/

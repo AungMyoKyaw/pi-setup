@@ -1,0 +1,26 @@
+{
+  "name": "pi-auto-optimize-images",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Auto-optimize images on paste before they reach the LLM (resize, recompress, strip metadata)",
+  "scripts": {
+    "test": "bun test optimizer.test.ts",
+    "check": "tsc -p tsconfig.json"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "dependencies": {
+    "sharp": "^0.34.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "bun-types": "^1.4.2",
+    "jiti": "^2.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

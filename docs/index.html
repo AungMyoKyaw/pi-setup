@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-setup — agent-native setup for the pi coding agent</title>
+<meta name="description" content="No install script. Your pi agent reads the repo and configures itself.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- Realizes docs/DESIGN.md. Tokens exported via: npx @google/design.md export --format css-tailwind -->
+<style type="text/tailwindcss">
+@theme {
+  --color-primary: #ffb000;
+  --color-canvas: #0c0b09;
+  --color-panel: #16130e;
+  --color-ink: #ede6d6;
+  --color-ink-dim: #8a8272;
+  --color-line: #2a261e;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-display: 28px;
+  --text-display--line-height: 1.35;
+  --text-body: 15px;
+  --text-body--line-height: 1.7;
+  --text-headline: 14px;
+  --text-label: 12px;
+  --tracking-label: 0.14em;
+}
+</style>
+</head>
+<body class="bg-canvas text-ink font-mono text-body antialiased">
+
+<main class="mx-auto max-w-[760px] px-5 pt-24 pb-16">
+
+  <!-- header -->
+  <header class="flex items-baseline justify-between">
+    <span class="text-headline font-bold">pi-setup</span>
+    <nav class="text-label uppercase tracking-label">
+      <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup">GitHub</a>
+    </nav>
+  </header>
+
+  <!-- hero -->
+  <section class="mt-16">
+    <p class="text-label uppercase tracking-label text-ink-dim">Agent-native setup for the pi coding agent</p>
+    <p class="mt-6 max-w-[62ch]">
+      No install script. Your agent reads the repo, inspects your machine,
+      shows you a plan, backs up anything it overwrites, and verifies the
+      result. The repo is the spec; the agent is the installer.
+    </p>
+
+    <!-- prompt-block -->
+    <div class="relative mt-10 border border-line bg-panel p-6">
+      <p id="prompt" class="text-display font-bold pr-24 break-words">Read https://raw.githubusercontent.com/AungMyoKyaw/pi-setup/master/SETUP.md and follow it to set up my pi coding agent. Profile: recommended. Proceed.<span class="text-primary"> █</span></p>
+      <button id="copy" type="button"
+        class="absolute top-4 right-4 border border-primary text-primary text-label uppercase tracking-label px-3 py-2 bg-transparent cursor-pointer hover:underline">Copy</button>
+    </div>
+    <p class="mt-4 text-label uppercase tracking-label text-ink-dim">Paste it into your pi agent. That is the whole installer.</p>
+  </section>
+
+  <!-- why not a script -->
+  <section class="mt-24">
+    <div class="h-px bg-line"></div>
+    <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">Why not a script</h2>
+    <div class="mt-6 space-y-4 max-w-[68ch]">
+      <p>A shell script executes blindly. It assumes your OS, clobbers your existing settings.json, and fails opaquely.</p>
+      <p>An agent does what a careful human would: it deep-merges your settings instead of overwriting them, skips identity files you already have, backs up before every write, works from a URL or a local clone, and reports exactly what it did.</p>
+      <p>Markdown and YAML are easier to review, fork, and diff than any install script.</p>
+    </div>
+  </section>
+
+  <!-- how it works -->
+  <section class="mt-24">
+    <div class="h-px bg-line"></div>
+    <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">How it works</h2>
+    <ol class="mt-6 space-y-4 list-none max-w-[68ch]">
+      <li>1. You paste the prompt. Your agent fetches SETUP.md and the manifest, then inspects your machine.</li>
+      <li>2. It shows you a plan — every file it will create, merge, or skip — and asks once, unless you pre-approved.</li>
+      <li>3. It applies the plan with backups, verifies the result, and reports what changed. Re-running the same prompt updates you; the procedure is idempotent.</li>
+    </ol>
+  </section>
+
+  <!-- profiles -->
+  <section class="mt-24">
+    <div class="h-px bg-line"></div>
+    <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">Profiles</h2>
+    <table class="mt-6 w-full border-collapse text-body">
+      <thead>
+        <tr class="text-left text-label uppercase tracking-label text-ink-dim">
+          <th class="py-3 pr-4 font-medium">Component</th>
+          <th class="py-3 px-4 font-medium">minimal</th>
+          <th class="py-3 px-4 font-medium">recommended</th>
+          <th class="py-3 pl-4 font-medium">full</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-t border-line"><td class="py-3 pr-4">settings.json (deep-merged)</td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">Prompt templates (/commands)</td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">Agent instructions + memory scaffold</td><td class="py-3 px-4"></td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">Core extensions (3)</td><td class="py-3 px-4"></td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">Core skills (workflow, docs)</td><td class="py-3 px-4"></td><td class="py-3 px-4 text-primary">✓</td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">SOUL.md identity file (opinionated)</td><td class="py-3 px-4"></td><td class="py-3 px-4"></td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">All extensions (incl. subagent fleet)</td><td class="py-3 px-4"></td><td class="py-3 px-4"></td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-line"><td class="py-3 pr-4">All skills (email, playwright, pdf…)</td><td class="py-3 px-4"></td><td class="py-3 px-4"></td><td class="py-3 pl-4 text-primary">✓</td></tr>
+        <tr class="border-t border-b border-line"><td class="py-3 pr-4">Parallel RPC model routes</td><td class="py-3 px-4"></td><td class="py-3 px-4"></td><td class="py-3 pl-4 text-primary">✓</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-4 text-ink-dim max-w-[68ch]">Identity and memory files are skip-if-exists — the agent never overwrites yours.</p>
+  </section>
+
+  <!-- what it never touches -->
+  <section class="mt-24">
+    <div class="h-px bg-line"></div>
+    <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">What it never touches</h2>
+    <ul class="mt-6 space-y-4 list-none max-w-[68ch]">
+      <li>→ Credentials (auth.json), sessions, model caches, trust state — anything not in the manifest.</li>
+      <li>→ Every overwrite is backed up to ~/.pi-setup-backups/ first.</li>
+      <li>→ After setup you authenticate your own provider (/login inside pi). No keys ship in the repo.</li>
+    </ul>
+  </section>
+
+  <!-- make it yours -->
+  <section class="mt-24">
+    <div class="h-px bg-line"></div>
+    <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">Make it yours</h2>
+    <p class="mt-6 max-w-[68ch]">Fork the repo, replace everything under files/ with your own config, edit setup.yaml to match, and run the audit before every push — it fails on leaked secrets, absolute home paths, and private machine files.</p>
+    <div class="mt-6 border border-line bg-panel p-5 text-body">
+      <p>$ git clone https://github.com/AungMyoKyaw/pi-setup.git</p>
+      <p>$ cd pi-setup &amp;&amp; ./scripts/audit.sh</p>
+      <p class="text-ink-dim">AUDIT CLEAN</p>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer class="mt-24">
+    <div class="h-px bg-line"></div>
+    <div class="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-label uppercase tracking-label">
+      <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup">Source</a>
+      <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup/blob/master/README.md">README</a>
+      <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup/blob/master/LICENSE">AGPL-3.0</a>
+      <span class="text-ink-dim">Aung Myo Kyaw</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+document.getElementById('copy').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  const text = document.getElementById('prompt').innerText.replace(/\s*█\s*$/, '').trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  } catch {
+    btn.textContent = 'Select+C';
+  }
+});
+</script>
+</body>
+</html>

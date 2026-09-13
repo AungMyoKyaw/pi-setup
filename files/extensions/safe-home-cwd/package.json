@@ -1,0 +1,16 @@
+{
+  "name": "pi-safe-home-cwd",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Redirect Pi's relative built-in operations away from the home directory",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "test": "bun test safe-home-cwd.test.ts",
+    "check": "tsc -p tsconfig.json"
+  }
+}

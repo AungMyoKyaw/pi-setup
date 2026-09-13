@@ -1,0 +1,11 @@
+{
+  "toolDescriptionMode": "compact",
+  "defaultSubagentContext": "fresh",
+  "maxSubagentDepth": 1,
+  "parallel": {
+    "maxTasks": 12,
+    "concurrency": 4
+  },
+  "fleetView": true,
+  "asyncWidget": true
+}

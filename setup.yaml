@@ -1,0 +1,99 @@
+# pi-setup manifest
+#
+# Contract between this repo and the executing agent. Always read together
+# with SETUP.md, which defines the exact semantics of each strategy.
+#
+# Strategies:
+#   deep-merge      Recursively merge source JSON into target JSON. Source
+#                   wins on conflicts; keys existing only in target survive.
+#   copy            Copy file(s). Back up existing targets first.
+#   skip-if-exists  Copy only when target is absent. Never overwrite.
+#   extension       Copy files/extensions/<name> into ~/.pi/agent/extensions/
+#                   (backup first), then `bun install` in dirs with package.json.
+#   skill           Copy files/skills/<name> into ~/.agents/skills/ (backup first).
+
+version: 1
+
+profiles:
+  minimal:     [settings, prompts]
+  recommended: [settings, prompts, agents-base, extensions-core, skills-core]
+  full:        [settings, parallel-tools, prompts, agents-base, soul, extensions-all, skills-all]
+
+components:
+  settings:
+    description: pi settings — provider/model defaults, theme, trust, telemetry
+    source: files/settings.json
+    target: ~/.pi/agent/settings.json
+    strategy: deep-merge
+
+  parallel-tools:
+    description: model routes for parallel RPC tools (scout/plan/review)
+    source: files/parallel-tools.json
+    target: ~/.pi/agent/parallel-tools.json
+    strategy: copy
+
+  prompts:
+    description: prompt templates, invocable as /commands in pi
+    source: files/prompts
+    target: ~/.pi/agent/prompts
+    strategy: copy
+
+  agents-base:
+    description: global agent instructions + memory scaffold
+    strategy: skip-if-exists
+    files:
+      - { source: files/agents/AGENTS.md,                           target: ~/.agents/AGENTS.md }
+      - { source: files/agents/MEMORY.md,                           target: ~/.agents/MEMORY.md }
+      - { source: files/agents/memory/coding-style.md,              target: ~/.agents/memory/coding-style.md }
+      - { source: files/agents/memory/parallel-tasks.md,            target: ~/.agents/memory/parallel-tasks.md }
+      - { source: files/agents/memory/people.md,                    target: ~/.agents/memory/people.md }
+      - { source: files/agents/memory/tools.md,                     target: ~/.agents/memory/tools.md }
+
+  soul:
+    description: identity/voice file. Opinionated and personal — opt-in.
+    source: files/agents/SOUL.md
+    target: ~/.agents/SOUL.md
+    strategy: skip-if-exists
+
+  extensions-core:
+    description: small, low-risk pi extensions
+    strategy: extension
+    extensions: [safe-home-cwd, compact-footer, request-done-notifier]
+
+  extensions-all:
+    description: every extension, including heavier ones
+    strategy: extension
+    extensions: [safe-home-cwd, compact-footer, request-done-notifier, coding-plan-quota, auto-optimize-images, subagent]
+    shared: [_shared]
+
+  skills-core:
+    description: workflow + documentation skills
+    strategy: skill
+    skills: [software-delivery-loop, sdl, grill-me, grilling, loop-me, find-docs]
+
+  skills-all:
+    description: full skill set
+    strategy: skill
+    skills:
+      - software-delivery-loop
+      - sdl
+      - grill-me
+      - grilling
+      - loop-me
+      - find-docs
+      - exa-search
+      - gws-email
+      - image-metadata-sanitizer
+      - playwright-cli
+      - scribd-to-pdf
+      - design-md
+
+# Optional runtime prerequisites. Never fail a component over these — report
+# them in the final summary so the user can install later.
+requires:
+  exa-search:               "EXA_API_KEY environment variable"
+  gws-email:                "gws CLI authenticated to a Google account"
+  playwright-cli:           "playwright CLI (npm i -g playwright or via npx)"
+  image-metadata-sanitizer: "python3 with Pillow"
+  scribd-to-pdf:            "python3 with Pillow and requests"
+  extensions:               "bun (https://bun.sh) for extension dependencies"

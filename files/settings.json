@@ -1,0 +1,14 @@
+{
+  "lastChangelogVersion": "0.85.1",
+  "editorPaddingX": 1,
+  "outputPad": 1,
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-luna",
+  "defaultThinkingLevel": "xhigh",
+  "modelThinkingLevels": {
+    "*": "xhigh"
+  },
+  "enableInstallTelemetry": false,
+  "defaultProjectTrust": "always",
+  "theme": "dark"
+}
