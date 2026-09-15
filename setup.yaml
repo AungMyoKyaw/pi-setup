@@ -88,6 +88,7 @@ components:
         coding-plan-quota,
         auto-optimize-images,
         subagent,
+        tok-speed,
       ]
     shared: [_shared]
 
