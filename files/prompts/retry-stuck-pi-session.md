@@ -1,6 +1,6 @@
 ---
 description: Safely scan and retry eligible stuck or failed Pi sessions in tmux
-argument-hint: "[tmux-pane]"
+argument-hint: '[tmux-pane]'
 ---
 
 Safely scan and retry eligible stuck or failed Pi sessions running in tmux.
