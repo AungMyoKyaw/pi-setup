@@ -42,14 +42,14 @@ playwright-cli click e3
 Collect the generated code into a Playwright test:
 
 ```typescript
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("login flow", async ({ page }) => {
+test('login flow', async ({ page }) => {
   // Generated code from playwright-cli session:
-  await page.goto("https://example.com/login");
-  await page.getByRole("textbox", { name: "Email" }).fill("user@example.com");
-  await page.getByRole("textbox", { name: "Password" }).fill("password123");
-  await page.getByRole("button", { name: "Sign In" }).click();
+  await page.goto('https://example.com/login');
+  await page.getByRole('textbox', { name: 'Email' }).fill('user@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password123');
+  await page.getByRole('button', { name: 'Sign In' }).click();
 
   // Add assertions
   await expect(page).toHaveURL(/.*dashboard/);
@@ -62,10 +62,10 @@ The generated code uses role-based locators when possible, which are more resili
 
 ```typescript
 // Generated (good - semantic)
-await page.getByRole("button", { name: "Submit" }).click();
+await page.getByRole('button', { name: 'Submit' }).click();
 
 // Avoid (fragile - CSS selectors)
-await page.locator("#submit-btn").click();
+await page.locator('#submit-btn').click();
 ```
 
 ### Explore before recording
@@ -114,17 +114,13 @@ playwright-cli --raw snapshot e5
 
 ```typescript
 // Generated action
-await page.getByRole("button", { name: "Submit" }).click();
+await page.getByRole('button', { name: 'Submit' }).click();
 
 // Manual assertions using the outputs above:
-await expect(page.getByRole("alert", { name: "Success" })).toBeVisible();
-await expect(page.getByTestId("main-header")).toHaveText("Welcome, user");
-await expect(page.getByRole("textbox", { name: "Email" })).toHaveValue(
-  "user@example.com",
-);
-await expect(
-  page.getByRole("checkbox", { name: "Enable notifications" }),
-).toBeChecked();
+await expect(page.getByRole('alert', { name: 'Success' })).toBeVisible();
+await expect(page.getByTestId('main-header')).toHaveText('Welcome, user');
+await expect(page.getByRole('textbox', { name: 'Email' })).toHaveValue('user@example.com');
+await expect(page.getByRole('checkbox', { name: 'Enable notifications' })).toBeChecked();
 
 // toMatchAriaSnapshot on the whole page, finds a matching region
 await expect(page).toMatchAriaSnapshot(`
@@ -134,7 +130,7 @@ await expect(page).toMatchAriaSnapshot(`
 `);
 
 // toMatchAriaSnapshot scoped to a region
-await expect(page.getByRole("navigation")).toMatchAriaSnapshot(`
+await expect(page.getByRole('navigation')).toMatchAriaSnapshot(`
   - link "Home"
   - link /\\d+ new messages?/
   - link "Profile"
@@ -171,10 +167,10 @@ Minimum viable seed:
 
 ```ts
 // tests/seed.spec.ts
-import { test } from "@playwright/test";
+import { test } from '@playwright/test';
 
-test("seed", async ({ page }) => {
-  await page.goto("https://example.com/");
+test('seed', async ({ page }) => {
+  await page.goto('https://example.com/');
 });
 ```
 
@@ -182,12 +178,12 @@ Preferred — push navigation into a fixture so scenario tests reuse it:
 
 ```ts
 // tests/fixtures.ts
-import { test as baseTest } from "@playwright/test";
-export { expect } from "@playwright/test";
+import { test as baseTest } from '@playwright/test';
+export { expect } from '@playwright/test';
 
 export const test = baseTest.extend({
   page: async ({ page }, use) => {
-    await page.goto("https://example.com/");
+    await page.goto('https://example.com/');
     await use(page);
   },
 });
@@ -195,9 +191,9 @@ export const test = baseTest.extend({
 
 ```ts
 // tests/seed.spec.ts
-import { test } from "./fixtures";
+import { test } from './fixtures';
 
-test("seed", async ({ page }) => {
+test('seed', async ({ page }) => {
   // Fixture already navigates. This empty body tells agents where to start.
 });
 ```
@@ -326,23 +322,23 @@ Collect the generated code and write the test file at the path given in the spec
 ```ts
 // spec: specs/basic-operations.plan.md
 // seed: tests/seed.spec.ts
-import { test, expect } from "./fixtures"; // or '@playwright/test' if no fixtures file
+import { test, expect } from './fixtures'; // or '@playwright/test' if no fixtures file
 
-test.describe("Signing in and out", () => {
-  test("should sign in", async ({ page }) => {
+test.describe('Signing in and out', () => {
+  test('should sign in', async ({ page }) => {
     // 1. Navigate to the application
     // (handled by the seed fixture)
 
     // 2. Type 'John Doe' into the username field
-    await page.getByRole("textbox", { name: "username" }).fill("John Doe");
+    await page.getByRole('textbox', { name: 'username' }).fill('John Doe');
 
     // 3. Type password
-    await page.getByRole("textbox", { name: "password" }).fill("TestPassword");
+    await page.getByRole('textbox', { name: 'password' }).fill('TestPassword');
 
     // 4. Press Enter to submit
-    await page.getByRole("textbox", { name: "password" }).press("Enter");
+    await page.getByRole('textbox', { name: 'password' }).press('Enter');
 
-    await expect(page.getByRole("heading")).toContainText("Welcome, John Doe!");
+    await expect(page.getByRole('heading')).toContainText('Welcome, John Doe!');
   });
 });
 ```

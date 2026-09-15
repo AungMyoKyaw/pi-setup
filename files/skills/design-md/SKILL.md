@@ -308,7 +308,7 @@ If drift is heavy, recommend an AUTHOR session to reconcile.
 ### Programmatic API
 
 ```typescript
-import { lint } from "@google/design.md/linter";
+import { lint } from '@google/design.md/linter';
 
 const report = lint(markdownString);
 

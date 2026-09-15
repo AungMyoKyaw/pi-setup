@@ -2,8 +2,8 @@
 name: Modern App
 description: A modern, clean design system.
 colors:
-  primary: "#3B82F6"
-  secondary: "#64748B"
+  primary: '#3B82F6'
+  secondary: '#64748B'
 typography:
   body:
     fontFamily: Inter
