@@ -18,10 +18,10 @@ and follow it to set up my pi coding agent. Profile: recommended. Proceed.
 ```
 
 That's the whole installer. Your agent will inspect your machine, show you a
-plan (or apply it directly, since the prompt says *Proceed*), back up
+plan (or apply it directly, since the prompt says _Proceed_), back up
 anything it overwrites, and verify the result.
 
-Prefer to inspect first? Clone the repo and drop *Proceed*:
+Prefer to inspect first? Clone the repo and drop _Proceed_:
 
 ```sh
 git clone https://github.com/AungMyoKyaw/pi-setup.git && cd pi-setup
@@ -41,17 +41,17 @@ installer.
 
 ## Profiles
 
-| Component                              | minimal | recommended | full |
-| -------------------------------------- | :-----: | :---------: | :--: |
-| `settings.json` (deep-merged)          |    ✓    |      ✓      |  ✓   |
-| Prompt templates (`/commands`)         |    ✓    |      ✓      |  ✓   |
-| Agent instructions + memory scaffold   |         |      ✓      |  ✓   |
-| Core extensions (3)                    |         |      ✓      |  ✓   |
-| Core skills (workflow, docs)           |         |      ✓      |  ✓   |
-| `SOUL.md` identity file (opinionated)  |         |             |  ✓   |
-| All extensions (incl. subagent fleet)  |         |             |  ✓   |
-| All skills (email, playwright, pdf…)   |         |             |  ✓   |
-| Parallel RPC model routes              |         |             |  ✓   |
+| Component                             | minimal | recommended | full |
+| ------------------------------------- | :-----: | :---------: | :--: |
+| `settings.json` (deep-merged)         |    ✓    |      ✓      |  ✓   |
+| Prompt templates (`/commands`)        |    ✓    |      ✓      |  ✓   |
+| Agent instructions + memory scaffold  |         |      ✓      |  ✓   |
+| Core extensions (3)                   |         |      ✓      |  ✓   |
+| Core skills (workflow, docs)          |         |      ✓      |  ✓   |
+| `SOUL.md` identity file (opinionated) |         |             |  ✓   |
+| All extensions (incl. subagent fleet) |         |             |  ✓   |
+| All skills (email, playwright, pdf…)  |         |             |  ✓   |
+| Parallel RPC model routes             |         |             |  ✓   |
 
 Identity and memory files are **skip-if-exists** — the agent will never
 overwrite yours.

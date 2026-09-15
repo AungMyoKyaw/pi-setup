@@ -11,13 +11,22 @@
 #   extension       Copy files/extensions/<name> into ~/.pi/agent/extensions/
 #                   (backup first), then `bun install` in dirs with package.json.
 #   skill           Copy files/skills/<name> into ~/.agents/skills/ (backup first).
+#   symlink         Ensure `target` is a symlink pointing at `source`. If the
+#                   target is absent, create the symlink. If it is already a
+#                   symlink to the right source, do nothing. If it is a
+#                   symlink to a different path or a regular file (with
+#                   different content), back the existing target up to
+#                   ~/.pi-setup-backups/<UTC-ts>/<target-relative-to-HOME>
+#                   before replacing. If `source` is missing, skip + note.
+#                   Used to wire ~/.pi/agent/AGENTS.md into the canonical
+#                   ~/.agents/AGENTS.md so pi's context-file loader picks it up.
 
 version: 1
 
 profiles:
-  minimal:     [settings, prompts]
+  minimal: [settings, prompts]
   recommended: [settings, prompts, agents-base, extensions-core, skills-core]
-  full:        [settings, parallel-tools, prompts, agents-base, soul, extensions-all, skills-all]
+  full: [settings, parallel-tools, prompts, agents-base, soul, extensions-all, skills-all]
 
 components:
   settings:
@@ -42,12 +51,20 @@ components:
     description: global agent instructions + memory scaffold
     strategy: skip-if-exists
     files:
-      - { source: files/agents/AGENTS.md,                           target: ~/.agents/AGENTS.md }
-      - { source: files/agents/MEMORY.md,                           target: ~/.agents/MEMORY.md }
-      - { source: files/agents/memory/coding-style.md,              target: ~/.agents/memory/coding-style.md }
-      - { source: files/agents/memory/parallel-tasks.md,            target: ~/.agents/memory/parallel-tasks.md }
-      - { source: files/agents/memory/people.md,                    target: ~/.agents/memory/people.md }
-      - { source: files/agents/memory/tools.md,                     target: ~/.agents/memory/tools.md }
+      - { source: files/agents/AGENTS.md, target: ~/.agents/AGENTS.md }
+      - { source: files/agents/MEMORY.md, target: ~/.agents/MEMORY.md }
+      - { source: files/agents/memory/coding-style.md, target: ~/.agents/memory/coding-style.md }
+      - {
+          source: files/agents/memory/parallel-tasks.md,
+          target: ~/.agents/memory/parallel-tasks.md,
+        }
+      - { source: files/agents/memory/people.md, target: ~/.agents/memory/people.md }
+      - { source: files/agents/memory/tools.md, target: ~/.agents/memory/tools.md }
+    # pi loads context files from ~/.pi/agent/AGENTS.md (see pi usage.md
+    # § Context Files), not ~/.agents/AGENTS.md. Wire the two together so
+    # global instructions actually reach the agent on a fresh install.
+    links:
+      - { source: ~/.agents/AGENTS.md, target: ~/.pi/agent/AGENTS.md }
 
   soul:
     description: identity/voice file. Opinionated and personal — opt-in.
@@ -63,7 +80,15 @@ components:
   extensions-all:
     description: every extension, including heavier ones
     strategy: extension
-    extensions: [safe-home-cwd, compact-footer, request-done-notifier, coding-plan-quota, auto-optimize-images, subagent]
+    extensions:
+      [
+        safe-home-cwd,
+        compact-footer,
+        request-done-notifier,
+        coding-plan-quota,
+        auto-optimize-images,
+        subagent,
+      ]
     shared: [_shared]
 
   skills-core:
@@ -91,9 +116,9 @@ components:
 # Optional runtime prerequisites. Never fail a component over these — report
 # them in the final summary so the user can install later.
 requires:
-  exa-search:               "EXA_API_KEY environment variable"
-  gws-email:                "gws CLI authenticated to a Google account"
-  playwright-cli:           "playwright CLI (npm i -g playwright or via npx)"
+  exa-search: "EXA_API_KEY environment variable"
+  gws-email: "gws CLI authenticated to a Google account"
+  playwright-cli: "playwright CLI (npm i -g playwright or via npx)"
   image-metadata-sanitizer: "python3 with Pillow"
-  scribd-to-pdf:            "python3 with Pillow and requests"
-  extensions:               "bun (https://bun.sh) for extension dependencies"
+  scribd-to-pdf: "python3 with Pillow and requests"
+  extensions: "bun (https://bun.sh) for extension dependencies"

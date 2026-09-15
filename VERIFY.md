@@ -38,13 +38,27 @@ Run after applying the plan. Report each as pass / fail / skipped.
    ls ~/.agents/AGENTS.md ~/.agents/MEMORY.md 2>/dev/null; echo DONE
    ```
 
-6. **pi launches**
+6. **AGENTS.md linked into pi** (if profile included `agents-base`) — pi
+   loads context files from `~/.pi/agent/AGENTS.md`, not `~/.agents/AGENTS.md`,
+   so the installer must wire the two together. The two files must resolve
+   to the same content (symlink or identical copy).
+
+   ```sh
+   if [ -e ~/.pi/agent/AGENTS.md ] && [ -e ~/.agents/AGENTS.md ]; then
+     diff -q ~/.pi/agent/AGENTS.md ~/.agents/AGENTS.md >/dev/null \
+       && echo OK || echo FAIL
+   else
+     echo SKIP
+   fi
+   ```
+
+7. **pi launches**
 
    ```sh
    pi --version
    ```
 
-7. **End-to-end smoke** — only if a provider is already authenticated
+8. **End-to-end smoke** — only if a provider is already authenticated
    (check: `pi auth status` exits 0, or ask the user). Otherwise skip.
 
    ```sh

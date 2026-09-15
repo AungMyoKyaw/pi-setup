@@ -69,13 +69,26 @@ you will need (from disk or raw base).
 ### 3. Plan
 
 Produce a concise table: one row per target path with its action —
-`create`, `merge`, `copy`, `skip (exists)`, or `skip (missing dep)`.
-Show it unless pre-authorized.
+`create`, `merge`, `copy`, `symlink`, `link (exists)`, `skip (exists)`,
+or `skip (missing dep)`. Show it unless pre-authorized.
 
 ### 4. Apply
 
 In this order: `settings` → `parallel-tools` → `prompts` → `agents-base` →
 `soul` → extensions → skills.
+
+- **symlink** (`agents-base` `links:`): resolve `source` to an absolute path
+  under `$HOME`. Resolve `target` likewise. The agent directory at `target`
+  must already exist (pi creates it on first run); create only the immediate
+  parent if missing. Then:
+  - If `target` is absent → create the symlink: `ln -s "$abs_source" "$abs_target"`.
+  - If `target` is a symlink whose link target equals `abs_source` → no-op.
+  - If `target` is a symlink pointing elsewhere, or a regular file/directory
+    whose content differs from `abs_source` → back it up to
+    `~/.pi-setup-backups/<UTC-ts>/<target-relative-to-HOME>`, then replace it
+    with the symlink (`ln -snf "$abs_source" "$abs_target"`). Note the
+    backup in the final report.
+  - If `source` is missing → skip + note in the report.
 
 - **deep-merge** (settings): parse target JSON (or `{}` if absent) and source
   JSON. Merge recursively: objects merge key-by-key; scalars and arrays from
