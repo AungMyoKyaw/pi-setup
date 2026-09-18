@@ -38,6 +38,11 @@ rounded:
 omitted:
   - section: spacing
     reason: Single-column man-page layout; rhythm described in prose, not a scale.
+  - section: motion
+    reason: Page contains no animation. State changes are instant.
+  - section: a11y
+    reason: Accessibility is a substrate constraint, not a styled surface. Rules
+      recorded in prose under Do's and Don'ts.
 components:
   page:
     backgroundColor: "{colors.canvas}"
@@ -143,6 +148,22 @@ plainly.
   table that carries color.
 - **code-block** — Panel background, hairline border, body-size mono, `$`
   prefixes for shell commands.
+- **empty-cell** — the `—` glyph in Ink Dim, used in tables to mark a row
+  that is explicitly not included. Never leave a table cell blank.
+- **focus-ring** — 2px Phosphor Amber outline, 2px offset, square. Applied
+  on every interactive element via `:focus-visible`. Keyboard users see
+  it; pointer users do not.
+- **decorative-glyph** — `█`, `→`, `✓`, `—` and any other mark that exists
+  for visual rhythm are wrapped in `<span aria-hidden="true">`. The
+  parent element carries the semantic label (`aria-label`).
+- **skip-link** — first focusable element on the page; hidden until
+  focused; jumps to the main content.
+- **badge** — flat plastic SVGs at `docs/badges/*.svg`, 20px tall, square
+  corners. Two cells per badge: a key cell in `panel` over `line` border,
+  a value cell in `canvas` over `line` border. Text is `JetBrains Mono`
+  10px / 700 / 0.5em tracking, uppercase. Key uses `ink-dim`; value uses
+  `ink`; the one accent badge (`mode`) uses `primary` for the value. No
+  rounding, no gradients, no shadows, no animation.
 
 ## Do's and Don'ts
 
@@ -155,6 +176,20 @@ plainly.
 5. Do keep body copy at man-page density.
 6. Do prefix shell commands with `$` in code blocks.
 7. Do keep the single column left-aligned with a capped measure.
+8. Do mark every interactive element with a visible focus ring
+   (`focus-ring` component).
+9. Do mark empty table cells with `—` in Ink Dim, never leave them blank.
+10. Do give every `<table>` a `<caption>` (visually hidden if needed) and
+    `scope="col"` on every header cell.
+11. Do wrap decorative glyphs in `<span aria-hidden="true">` and put the
+    semantic label on the parent.
+12. Do announce clipboard and other async results through an
+    `aria-live="polite"` region, not only by swapping button text.
+13. Do provide a skip-to-content link as the first focusable element.
+14. Do add a print stylesheet that preserves the man-page feel
+    (ink-on-paper, mono retained).
+15. Do include `theme-color`, Open Graph, and Twitter Card meta so
+    shared links preview correctly on dark surfaces.
 
 **Don't:**
 
@@ -162,9 +197,14 @@ plainly.
 9. No glow, box-shadow, or text-shadow.
 10. No rounded corners; 0px on every element.
 11. No glassmorphism, backdrop blur, or layered transparency.
-12. No emoji. Sparse functional glyphs (✓, →, $) only.
+12. No emoji. Sparse functional glyphs (✓, →, $, —) only.
 13. No stock illustration, hero imagery, or decorative icons.
 14. No animation or transitions beyond instant hover state changes.
 15. No marketing adjectives in copy ("seamless", "powerful", "blazing").
 16. No centered body paragraphs or justified text.
 17. No feature grid of cards; prose and one table carry the page.
+18. No interactive element without a `:focus-visible` ring.
+19. No clipboard / async action that relies on visual-only feedback; an
+    assistive-technology announcement is required.
+20. No tab order that requires a keyboard user to traverse every nav link
+    before reaching content; provide a skip link.

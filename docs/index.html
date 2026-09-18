@@ -8,6 +8,22 @@
       name="description"
       content="No install script. Your pi agent reads the repo and configures itself."
     />
+    <meta name="theme-color" content="#0C0B09" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="pi-setup — agent-native setup for the pi coding agent" />
+    <meta
+      property="og:description"
+      content="No install script. Your pi agent reads the repo and configures itself."
+    />
+    <meta property="og:url" content="https://github.com/AungMyoKyaw/pi-setup" />
+    <meta property="og:image" content="favicon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="pi-setup — agent-native setup for the pi coding agent" />
+    <meta
+      name="twitter:description"
+      content="No install script. Your pi agent reads the repo and configures itself."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,25 +50,124 @@
         --tracking-label: 0.14em;
       }
     </style>
+    <style>
+      /* Accessibility: visible focus indicator for keyboard users.
+         Respects the man-page aesthetic — amber, 2px, square. */
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid #ffb000;
+        outline-offset: 2px;
+      }
+      /* Skip-to-content link — visible only on focus. */
+      .skip-link {
+        position: absolute;
+        left: 20px;
+        top: -100px;
+        z-index: 10;
+        padding: 8px 12px;
+        background: #0c0b09;
+        color: #ffb000;
+        border: 2px solid #ffb000;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .skip-link:focus {
+        top: 20px;
+      }
+      /* Flat plastic badges — square, man-page aesthetic. */
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 24px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: stretch;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        border: 1px solid #2a261e;
+      }
+      .badge .k {
+        padding: 6px 8px;
+        background: #16130e;
+        color: #8a8272;
+        border-right: 1px solid #2a261e;
+      }
+      .badge .v {
+        padding: 6px 8px;
+        color: #ede6d6;
+      }
+      .badge.primary .v {
+        color: #ffb000;
+      }
+      /* Inline SVG badges — square, pixel-aligned to the baseline. */
+      .badges img {
+        display: block;
+        height: 20px;
+        width: auto;
+      }
+      /* Print: invert to ink-on-paper, preserve man-page feel. */
+      @media print {
+        body {
+          background: #fff !important;
+          color: #000 !important;
+        }
+        a,
+        button,
+        .text-primary {
+          color: #000 !important;
+        }
+        .bg-panel,
+        .border-line {
+          background: #fff !important;
+          border-color: #000 !important;
+        }
+        .text-ink-dim {
+          color: #444 !important;
+        }
+        .h-px,
+        .border-t,
+        .border-b {
+          background: #000 !important;
+          border-color: #000 !important;
+        }
+      }
+    </style>
   </head>
   <body class="bg-canvas text-ink font-mono text-body antialiased">
-    <main class="mx-auto max-w-[760px] px-5 pt-24 pb-16">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main id="main" class="mx-auto max-w-[760px] px-5 pt-24 pb-16">
       <!-- header -->
-      <header class="flex items-baseline justify-between">
+      <header class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3">
         <span class="text-headline font-bold">pi-setup</span>
-        <nav class="text-label uppercase tracking-label">
-          <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup"
-            >GitHub</a
-          >
-        </nav>
+        <div class="badges" role="list" aria-label="Repository metadata">
+          <a role="listitem" href="https://github.com/AungMyoKyaw/pi-setup/blob/master/LICENSE"
+            ><img src="badges/license.svg" alt="License: AGPL-3.0"
+          /></a>
+          <a role="listitem" href="#install"
+            ><img src="badges/install.svg" alt="Install time: 30 seconds"
+          /></a>
+          <a role="listitem" href="#updating"
+            ><img src="badges/mode.svg" alt="Mode: idempotent"
+          /></a>
+          <a role="listitem" href="#what-you-get"
+            ><img src="badges/profiles.svg" alt="Profiles: minimal, recommended, full"
+          /></a>
+        </div>
       </header>
 
       <!-- hero -->
       <section class="mt-16">
-        <p class="text-label uppercase tracking-label text-ink-dim">
+        <p class="text-headline font-bold uppercase tracking-label text-ink-dim">
           Agent-native setup for the pi coding agent
         </p>
-        <p class="mt-6 max-w-[62ch]">
+        <p class="mt-6 max-w-[62ch] text-body">
           No install script. Your agent reads the repo, inspects your machine, shows you a plan,
           backs up anything it overwrites, and verifies the result. The repo is the spec; the agent
           is the installer.
@@ -64,19 +179,22 @@
             Read https://raw.githubusercontent.com/AungMyoKyaw/pi-setup/master/SETUP.md and follow
             it to set up my pi coding agent. Profile: recommended. Proceed.<span
               class="text-primary"
-            >
-              █</span
+              aria-hidden="true"
+              >█</span
             >
           </p>
           <button
             id="copy"
             type="button"
+            aria-label="Copy prompt to clipboard"
+            aria-describedby="copy-status"
             class="absolute top-4 right-4 border border-primary text-primary text-label uppercase tracking-label px-3 py-2 bg-transparent cursor-pointer hover:underline"
           >
             Copy
           </button>
+          <span id="copy-status" class="sr-only" aria-live="polite" aria-atomic="true"></span>
         </div>
-        <p class="mt-4 text-label uppercase tracking-label text-ink-dim">
+        <p class="mt-4 text-headline font-bold uppercase tracking-label text-ink-dim">
           Paste it into your pi agent. That is the whole installer.
         </p>
       </section>
@@ -84,7 +202,10 @@
       <!-- why not a script -->
       <section class="mt-24">
         <div class="h-px bg-line"></div>
-        <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">
+        <h2
+          id="why-not-a-script"
+          class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
+        >
           Why not a script
         </h2>
         <div class="mt-6 space-y-4 max-w-[68ch]">
@@ -104,7 +225,10 @@
       <!-- how it works -->
       <section class="mt-24">
         <div class="h-px bg-line"></div>
-        <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">
+        <h2
+          id="how-it-works"
+          class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
+        >
           How it works
         </h2>
         <ol class="mt-6 space-y-4 list-none max-w-[68ch]">
@@ -126,70 +250,110 @@
       <!-- profiles -->
       <section class="mt-24">
         <div class="h-px bg-line"></div>
-        <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">Profiles</h2>
+        <h2
+          id="profiles"
+          class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
+        >
+          Profiles
+        </h2>
         <table class="mt-6 w-full border-collapse text-body">
+          <caption class="sr-only">
+            Component inclusion across minimal, recommended, and full profiles
+          </caption>
           <thead>
-            <tr class="text-left text-label uppercase tracking-label text-ink-dim">
-              <th class="py-3 pr-4 font-medium">Component</th>
-              <th class="py-3 px-4 font-medium">minimal</th>
-              <th class="py-3 px-4 font-medium">recommended</th>
-              <th class="py-3 pl-4 font-medium">full</th>
+            <tr class="text-left text-headline font-bold uppercase tracking-label text-ink-dim">
+              <th scope="col" class="py-3 pr-4 font-medium">Component</th>
+              <th scope="col" class="py-3 px-4 font-medium">minimal</th>
+              <th scope="col" class="py-3 px-4 font-medium">recommended</th>
+              <th scope="col" class="py-3 pl-4 font-medium">full</th>
             </tr>
           </thead>
           <tbody>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">settings.json (deep-merged)</td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">Prompt templates (/commands)</td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">Agent instructions + memory scaffold</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">Core extensions (3)</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">Core skills (workflow, docs)</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4 text-primary">✓</td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">SOUL.md identity file (opinionated)</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">All extensions (incl. brain capture)</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-line">
               <td class="py-3 pr-4">All skills (email, playwright, pdf…)</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
             <tr class="border-t border-b border-line">
               <td class="py-3 pr-4">Parallel RPC model routes</td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 px-4"></td>
-              <td class="py-3 pl-4 text-primary">✓</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
+              <td class="py-3 pl-4 text-primary" aria-label="included">
+                <span aria-hidden="true">✓</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -201,18 +365,24 @@
       <!-- what it never touches -->
       <section class="mt-24">
         <div class="h-px bg-line"></div>
-        <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">
+        <h2
+          id="what-it-never-touches"
+          class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
+        >
           What it never touches
         </h2>
         <ul class="mt-6 space-y-4 list-none max-w-[68ch]">
           <li>
-            → Credentials (auth.json), sessions, model caches, trust state — anything not in the
-            manifest.
+            <span aria-hidden="true">→</span> Credentials (auth.json), sessions, model caches, trust
+            state — anything not in the manifest.
           </li>
-          <li>→ Every overwrite is backed up to ~/.pi-setup-backups/ first.</li>
           <li>
-            → After setup you authenticate your own provider (/login inside pi). No keys ship in the
-            repo.
+            <span aria-hidden="true">→</span> Every overwrite is backed up to ~/.pi-setup-backups/
+            first.
+          </li>
+          <li>
+            <span aria-hidden="true">→</span> After setup you authenticate your own provider (/login
+            inside pi). No keys ship in the repo.
           </li>
         </ul>
       </section>
@@ -220,7 +390,10 @@
       <!-- make it yours -->
       <section class="mt-24">
         <div class="h-px bg-line"></div>
-        <h2 class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim">
+        <h2
+          id="make-it-yours"
+          class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
+        >
           Make it yours
         </h2>
         <p class="mt-6 max-w-[68ch]">
@@ -238,7 +411,9 @@
       <!-- footer -->
       <footer class="mt-24">
         <div class="h-px bg-line"></div>
-        <div class="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-label uppercase tracking-label">
+        <div
+          class="mt-3 flex flex-wrap gap-x-8 gap-y-2 text-headline font-bold uppercase tracking-label"
+        >
           <a class="text-primary hover:underline" href="https://github.com/AungMyoKyaw/pi-setup"
             >Source</a
           >
@@ -252,28 +427,50 @@
             href="https://github.com/AungMyoKyaw/pi-setup/blob/master/LICENSE"
             >AGPL-3.0</a
           >
-          <span class="text-ink-dim">Aung Myo Kyaw</span>
+          <span class="text-ink-dim">— Aung Myo Kyaw</span>
         </div>
       </footer>
     </main>
 
     <script>
-      document.getElementById("copy").addEventListener("click", async (e) => {
-        const btn = e.currentTarget;
-        const text = document
-          .getElementById("prompt")
-          .innerText.replace(/\s*█\s*$/, "")
-          .trim();
-        try {
-          await navigator.clipboard.writeText(text);
-          btn.textContent = "Copied";
-          setTimeout(() => {
+      (() => {
+        const btn = document.getElementById("copy");
+        const prompt = document.getElementById("prompt");
+        const status = document.getElementById("copy-status");
+        const promptText = prompt.innerText.replace(/\s*█\s*$/, "").trim();
+        let resetTimer = null;
+
+        const flash = (label, sr, ms = 2000) => {
+          btn.textContent = label;
+          status.textContent = sr;
+          if (resetTimer) clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
             btn.textContent = "Copy";
-          }, 1500);
-        } catch {
-          btn.textContent = "Select+C";
-        }
-      });
+            status.textContent = "";
+          }, ms);
+        };
+
+        const selectFallback = () => {
+          const range = document.createRange();
+          range.selectNodeContents(prompt);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        };
+
+        btn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(promptText);
+            flash("Copied", "Prompt copied to clipboard.");
+          } catch {
+            selectFallback();
+            flash(
+              "Press ⌘/Ctrl+C",
+              "Clipboard blocked. Prompt selected — press Cmd or Ctrl plus C to copy.",
+            );
+          }
+        });
+      })();
     </script>
   </body>
 </html>

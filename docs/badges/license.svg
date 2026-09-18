@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="118" height="20" viewBox="0 0 118 20" role="img" aria-label="License: AGPL-3.0">
+  <title>License: AGPL-3.0</title>
+  <rect width="118" height="20" fill="#0C0B09"/>
+  <rect x="0" y="0" width="52" height="20" fill="#16130E"/>
+  <rect x="52" y="0" width="66" height="20" fill="#0C0B09"/>
+  <rect x="52" y="0" width="1" height="20" fill="#2A261E"/>
+  <rect x="0" y="0" width="118" height="20" fill="none" stroke="#2A261E" stroke-width="1"/>
+  <text x="26" y="14" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" font-weight="700" fill="#8A8272" letter-spacing="0.5">LICENSE</text>
+  <text x="85" y="14" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" font-weight="700" fill="#EDE6D6" letter-spacing="0.5">AGPL-3.0</text>
+</svg>

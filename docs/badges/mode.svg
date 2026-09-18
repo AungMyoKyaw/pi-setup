@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="126" height="20" viewBox="0 0 126 20" role="img" aria-label="Mode: idempotent">
+  <title>Mode: idempotent</title>
+  <rect width="126" height="20" fill="#0C0B09"/>
+  <rect x="0" y="0" width="52" height="20" fill="#16130E"/>
+  <rect x="52" y="0" width="74" height="20" fill="#0C0B09"/>
+  <rect x="52" y="0" width="1" height="20" fill="#2A261E"/>
+  <rect x="0" y="0" width="126" height="20" fill="none" stroke="#2A261E" stroke-width="1"/>
+  <text x="26" y="14" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" font-weight="700" fill="#8A8272" letter-spacing="0.5">MODE</text>
+  <text x="89" y="14" text-anchor="middle" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" font-weight="700" fill="#FFB000" letter-spacing="0.5">IDEMPOTENT</text>
+</svg>
