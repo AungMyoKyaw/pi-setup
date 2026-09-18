@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  formatCompactFooter,
-  formatDuration,
-  type CompactFooterData,
-} from "./format";
+import { formatCompactFooter, formatDuration, type CompactFooterData } from "./format";
 
 const colorCodes: Record<string, string> = {
   muted: "90",
@@ -12,8 +8,7 @@ const colorCodes: Record<string, string> = {
 };
 
 const theme = {
-  fg: (color: string, text: string) =>
-    `\x1b[${colorCodes[color] ?? "37"}m${text}\x1b[0m`,
+  fg: (color: string, text: string) => `\x1b[${colorCodes[color] ?? "37"}m${text}\x1b[0m`,
 };
 
 const data: CompactFooterData = {
@@ -46,9 +41,7 @@ describe("compact footer", () => {
 
     expect(line).toContain("\x1b[90m~/.pi (master)\x1b[0m");
     expect(line).toContain("\x1b[90m0.0%/272k (auto)\x1b[0m");
-    expect(line).toContain(
-      "\x1b[90m(openai-codex) gpt-5.6-luna • xhigh\x1b[0m",
-    );
+    expect(line).toContain("\x1b[90m(openai-codex) gpt-5.6-luna • xhigh\x1b[0m");
   });
 
   test("drops the provider before using the two-sided layout on a narrower terminal", () => {
@@ -85,9 +78,7 @@ describe("compact footer", () => {
   });
 
   test("shows the latest request duration", () => {
-    const line = plain(
-      formatCompactFooter({ ...data, requestTime: "⏱ 12s" }, 120, theme)[0]!,
-    );
+    const line = plain(formatCompactFooter({ ...data, requestTime: "⏱ 12s" }, 120, theme)[0]!);
 
     expect(line).toContain("~/.pi (master)  $0.000 (sub)  ⏱ 12s");
   });

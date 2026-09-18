@@ -61,13 +61,11 @@ const execFileP = promisify(execFile);
 function installStdoutGuard(): void {
   for (const stream of [process.stdout, process.stderr] as const) {
     if (
-      (stream as NodeJS.WriteStream & { __piNotifierErrorGuard?: boolean })
-        .__piNotifierErrorGuard
+      (stream as NodeJS.WriteStream & { __piNotifierErrorGuard?: boolean }).__piNotifierErrorGuard
     )
       continue;
-    (
-      stream as NodeJS.WriteStream & { __piNotifierErrorGuard?: boolean }
-    ).__piNotifierErrorGuard = true;
+    (stream as NodeJS.WriteStream & { __piNotifierErrorGuard?: boolean }).__piNotifierErrorGuard =
+      true;
     stream.on("error", () => {
       // Intentionally empty: EPIPE on a closing PTY is expected during
       // shutdown and must not propagate as an uncaughtException.
@@ -149,9 +147,7 @@ async function notifyWebhook(title: string, body: string): Promise<boolean> {
     const template =
       process.env.PI_NOTIFIER_WEBHOOK_BODY ??
       '{"title":"$title","body":"$body","message":"$title: $body"}';
-    const payload = template
-      .replace(/\$title/g, title)
-      .replace(/\$body/g, body);
+    const payload = template.replace(/\$title/g, title).replace(/\$body/g, body);
     await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -210,10 +206,7 @@ export function lastUserPrompt(ctx: {
     if (typeof content === "string") return content;
     if (Array.isArray(content)) {
       const text = content
-        .filter(
-          (part): part is { type: string; text?: string } =>
-            part && typeof part === "object",
-        )
+        .filter((part): part is { type: string; text?: string } => part && typeof part === "object")
         .filter((part) => part.type === "text" && typeof part.text === "string")
         .map((part) => part.text as string)
         .join("\n")

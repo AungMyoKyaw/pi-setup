@@ -1,6 +1,6 @@
 ---
 description: Review recent work and improve durable Pi memory
-argument-hint: '[days]'
+argument-hint: "[days]"
 ---
 
 Run a focused memory-maintenance review for the last ${1:-7} days.

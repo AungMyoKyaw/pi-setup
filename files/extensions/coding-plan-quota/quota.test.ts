@@ -5,6 +5,7 @@ import {
   formatKimiQuota,
   formatLlmQuota,
   formatQuotaBar,
+  fetchLlmQuota,
   parseCodexUsageResponse,
   parseCopilotUsageResponse,
   parseKimiUsageResponse,
@@ -83,6 +84,40 @@ describe("llmapi quota", () => {
       }),
     ).toBe("llmapi pro · 5h 40%");
   });
+
+  test("retries transient failures", async () => {
+    const previousFetch = globalThis.fetch;
+    const previousBase = process.env.ANTHROPIC_BASE_URL;
+    const previousToken = process.env.ANTHROPIC_AUTH_TOKEN;
+    const previousKey = process.env.ANTHROPIC_API_KEY;
+    let attempts = 0;
+
+    process.env.ANTHROPIC_BASE_URL = "https://llmapi.example";
+    process.env.ANTHROPIC_AUTH_TOKEN = "test-token";
+    delete process.env.ANTHROPIC_API_KEY;
+    globalThis.fetch = (async () => {
+      attempts++;
+      if (attempts < 3) return new Response(null, { status: 503 });
+      return new Response(JSON.stringify({ used_5h: 40, limit_5h: 100 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    try {
+      const snapshot = await fetchLlmQuota();
+      expect(attempts).toBe(3);
+      expect(snapshot?.fiveHour?.pct).toBe(40);
+    } finally {
+      globalThis.fetch = previousFetch;
+      if (previousBase === undefined) delete process.env.ANTHROPIC_BASE_URL;
+      else process.env.ANTHROPIC_BASE_URL = previousBase;
+      if (previousToken === undefined) delete process.env.ANTHROPIC_AUTH_TOKEN;
+      else process.env.ANTHROPIC_AUTH_TOKEN = previousToken;
+      if (previousKey === undefined) delete process.env.ANTHROPIC_API_KEY;
+      else process.env.ANTHROPIC_API_KEY = previousKey;
+    }
+  });
 });
 
 describe("Kimi quota", () => {
@@ -137,13 +172,24 @@ describe("GitHub Copilot quota", () => {
     expect(snapshot?.premium?.percentRemaining).toBe(80);
     expect(snapshot?.chat?.remaining).toBe(950);
     expect(snapshot?.completions?.unlimited).toBe(true);
-    expect(formatCopilotQuota(snapshot)).toBe(
-      "gh pro · prem 80% left · chat 95% left · comp ∞",
-    );
+    expect(formatCopilotQuota(snapshot)).toBe("gh pro · prem 80% left · chat 95% left · comp ∞");
   });
 });
 
 describe("quota bar", () => {
+  test("hides provider error paths", () => {
+    expect(formatLlmQuota({ error: "http 503" })).toBeUndefined();
+    expect(formatKimiQuota({ error: "timeout" })).toBeUndefined();
+    expect(
+      formatQuotaBar({
+        llmapi: { error: "http 503" },
+        codex: null,
+        kimi: null,
+        copilot: null,
+      }),
+    ).toBe("");
+  });
+
   test("keeps every configured provider", () => {
     expect(
       formatQuotaBar({
@@ -170,8 +216,6 @@ describe("quota bar", () => {
         },
       }),
     ).toContain("llmapi pro");
-    expect(
-      formatQuotaBar({ llmapi: null, codex: null, kimi: null, copilot: null }),
-    ).toBe("");
+    expect(formatQuotaBar({ llmapi: null, codex: null, kimi: null, copilot: null })).toBe("");
   });
 });

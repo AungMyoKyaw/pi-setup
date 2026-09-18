@@ -43,9 +43,7 @@ function getDescription(content: string): string {
   const fm = getFrontmatter(content);
   const desc = fm.description;
   if (typeof desc !== "string" || desc.length === 0) {
-    throw new Error(
-      "SKILL.md frontmatter is missing a non-empty description field",
-    );
+    throw new Error("SKILL.md frontmatter is missing a non-empty description field");
   }
   return desc;
 }

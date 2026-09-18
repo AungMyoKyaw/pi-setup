@@ -10,45 +10,20 @@
  *   6. Results are cached by SHA-256 of the input — second call is a hash hit.
  *   7. The total bytes after optimization is always <= the input bytes for
  *      a large image (we never make a "large" image bigger).
+ *   8. Cache is keyed under both the input hash AND the output hash, so
+ *      the context hook's re-pass through already-optimized bytes is a hit.
+ *   9. Concurrent identical calls share one pipeline run (single-flight),
+ *      and both callers see `cached: true` so notifications don't double-count.
  */
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import sharp from "sharp";
-import { optimizeImages, clearCache } from "./optimizer.ts";
-
-// Re-implement findImagePathsInText here to test the regex behavior.
-// (Index exports it would be cleaner; keeping it pure and testable inline.)
-function isPathBoundary(ch: string): boolean {
-  return (
-    ch === '"' ||
-    ch === "'" ||
-    ch === "<" ||
-    ch === ">" ||
-    ch === "|" ||
-    ch === "," ||
-    ch === ";"
-  );
-}
-
-function isStrictBoundary(ch: string): boolean {
-  return /\s/.test(ch) || isPathBoundary(ch);
-}
-
-function findImagePathsInText(text: string): string[] {
-  const out: string[] = [];
-  const extRe = /\.(png|jpe?g|gif|webp|bmp|tiff?)\b/gi;
-  let m: RegExpExecArray | null;
-  while ((m = extRe.exec(text)) !== null) {
-    const extEnd = m.index + m[0].length;
-    let i = extEnd - 1;
-    while (i > 0 && !isStrictBoundary(text[i - 1])) i--;
-    const candidate = text.slice(i, extEnd);
-    if (/^(?:\/|~\/|\.\/|\.\.\/)/.test(candidate)) out.push(candidate);
-  }
-  return out;
-}
+import { findImagePathsInText, resolveImagePath } from "./index.ts";
+import { optimizeImages, clearCache, setWarningHandler } from "./optimizer.ts";
 
 /** Build a solid-color PNG of the given dimensions. */
 async function makePng(
@@ -141,11 +116,7 @@ test("PNG with alpha channel stays PNG", async () => {
       mimeType: alpha.mimeType,
     },
   ]);
-  assert.equal(
-    out[0].mimeType,
-    "image/png",
-    "alpha must keep PNG (JPEG has no alpha)",
-  );
+  assert.equal(out[0].mimeType, "image/png", "alpha must keep PNG (JPEG has no alpha)");
 });
 
 test("oversized image is resized so the longer edge <= MAX_EDGE", async () => {
@@ -199,10 +170,7 @@ test("ICC profile is stripped from the output", async () => {
     .jpeg({ quality: 90 })
     .toBuffer();
   const taggedMeta = await sharp(tagged).metadata();
-  assert.ok(
-    taggedMeta.icc,
-    "input must have ICC profile for this test to be meaningful",
-  );
+  assert.ok(taggedMeta.icc, "input must have ICC profile for this test to be meaningful");
   const out = await optimizeImages([
     { type: "image", data: tagged.toString("base64"), mimeType: "image/jpeg" },
   ]);
@@ -253,11 +221,7 @@ test("JPEG output has no EXIF/IPTC/XMP/ICC APPn segments", async () => {
     const segLen = buf.readUInt16BE(i + 2);
     i += 2 + segLen;
   }
-  assert.deepEqual(
-    suspicious,
-    [],
-    `unexpected JPEG APPn metadata: ${suspicious.join(", ")}`,
-  );
+  assert.deepEqual(suspicious, [], `unexpected JPEG APPn metadata: ${suspicious.join(", ")}`);
 });
 
 test("PNG tEXt / iTXt / zTXt ancillary chunks are stripped", async () => {
@@ -291,11 +255,7 @@ test("PNG tEXt / iTXt / zTXt ancillary chunks are stripped", async () => {
   const chunk = Buffer.concat([len, type, data, crcBuf]);
   // Find IEND and insert before it.
   const iendIdx = tagged.indexOf(Buffer.from("IEND"));
-  const polluted = Buffer.concat([
-    tagged.slice(0, iendIdx - 4),
-    chunk,
-    tagged.slice(iendIdx - 4),
-  ]);
+  const polluted = Buffer.concat([tagged.slice(0, iendIdx - 4), chunk, tagged.slice(iendIdx - 4)]);
   // Sanity: input contains the secret.
   assert.match(polluted.toString("latin1"), /SECRET METADATA/);
   const out = await optimizeImages([
@@ -328,6 +288,11 @@ test("second call with identical input is a cache hit (no re-encode)", async () 
   ]);
   assert.equal(a[0].data, b[0].data, "cached output identical");
   assert.equal(a[0].mimeType, b[0].mimeType);
+  // Contract that the notification gate in index.ts depends on: first call
+  // is fresh work (cached: false), second call is a hit (cached: true).
+  // If this ever flips, the gate stops suppressing duplicate notifications.
+  assert.equal(a[0].cached, false, "first call is fresh work");
+  assert.equal(b[0].cached, true, "second call is a cache hit");
 });
 
 test("optimization never makes a large image larger", async () => {
@@ -373,16 +338,12 @@ test("hash function is deterministic for identical bytes", () => {
 });
 
 test("findImagePathsInText: detects pi-clipboard paste path", () => {
-  const paths = findImagePathsInText(
-    "what is in /tmp/pi-clipboard-abc-123.png?",
-  );
+  const paths = findImagePathsInText("what is in /tmp/pi-clipboard-abc-123.png?");
   assert.deepEqual(paths, ["/tmp/pi-clipboard-abc-123.png"]);
 });
 
 test("findImagePathsInText: detects multiple paths in one message", () => {
-  const paths = findImagePathsInText(
-    "see /tmp/a.png and /var/b.JPG and ./c.webp",
-  );
+  const paths = findImagePathsInText("see /tmp/a.png and /var/b.JPG and ./c.webp");
   assert.deepEqual(paths, ["/tmp/a.png", "/var/b.JPG", "./c.webp"]);
 });
 
@@ -396,6 +357,10 @@ test("findImagePathsInText: ignores non-image paths", () => {
   assert.deepEqual(findImagePathsInText("see foo.txt"), []);
 });
 
+test("resolveImagePath: expands home-relative paths", () => {
+  assert.equal(resolveImagePath("~/Pictures/example.png"), join(homedir(), "Pictures/example.png"));
+});
+
 test("findImagePathsInText: macOS screenshot with spaces — documented limitation", () => {
   // Paths with internal spaces are not detected. Pi's clipboard paste uses
   // UUID filenames (no spaces), so this is fine for the common case. Users
@@ -406,4 +371,108 @@ test("findImagePathsInText: macOS screenshot with spaces — documented limitati
   // Either zero matches or the loose partial — just assert we don't crash
   // and the test exercises the code path.
   assert.ok(Array.isArray(paths));
+});
+
+test("cache is keyed under both input hash and output hash — context-hook re-pass is a hit", async () => {
+  clearCache();
+  const big = await makePng(2000, 1500);
+  // Simulate the input hook: raw bytes in.
+  const first = await optimizeImages([
+    {
+      type: "image",
+      data: big.data.toString("base64"),
+      mimeType: "image/png",
+    },
+  ]);
+  assert.equal(first[0].cached, false, "first call is fresh work");
+  // Simulate the context hook: the message now contains the optimized
+  // bytes (different hash from raw). It should still hit the cache.
+  const second = await optimizeImages([
+    {
+      type: "image",
+      data: first[0].data,
+      mimeType: first[0].mimeType,
+    },
+  ]);
+  assert.equal(second[0].cached, true, "context-hook pass through optimized bytes must hit cache");
+  assert.equal(second[0].data, first[0].data, "cached output identical");
+  // The cache hit returns the original entry. Its originalBytes field
+  // reflects the *first* call's raw input size, NOT the second caller's
+  // input size (which is the first caller's optimized output). The
+  // invariant we want to lock in is that both callers see the SAME entry,
+  // so all fields match the first call's result.
+  assert.equal(second[0].originalBytes, first[0].originalBytes);
+  assert.equal(second[0].optimizedBytes, first[0].optimizedBytes);
+});
+
+test("single-flight: concurrent identical calls share one pipeline run", async () => {
+  clearCache();
+  const big = await makePng(2000, 1500);
+  const input = {
+    type: "image" as const,
+    data: big.data.toString("base64"),
+    mimeType: "image/png",
+  };
+  // Fire two in parallel before either has a chance to populate the cache.
+  const [a, b] = await Promise.all([optimizeImages([input]), optimizeImages([input])]);
+  // Both must end up with identical output bytes regardless of who started
+  // the pipeline.
+  assert.equal(a[0].data, b[0].data, "both callers get the same output");
+  assert.equal(a[0].mimeType, b[0].mimeType);
+  // At most one of the two is "fresh work" (cached: false). The other is
+  // a single-flight participant (cached: true). Either way, the total
+  // count of fresh shrinks in a notification loop is <= 1.
+  const freshCount = [a[0], b[0]].filter(
+    (r) => !r.cached && r.optimizedBytes < r.originalBytes,
+  ).length;
+  assert.ok(freshCount <= 1, `expected at most 1 fresh shrink; got ${freshCount}`);
+});
+
+test("optimizeImages: multiple distinct inputs are processed in parallel", async () => {
+  clearCache();
+  const a = await makePng(2000, 1500);
+  const b = await makePng(1500, 2000);
+  const out = await optimizeImages([
+    { type: "image", data: a.data.toString("base64"), mimeType: "image/png" },
+    { type: "image", data: b.data.toString("base64"), mimeType: "image/png" },
+  ]);
+  assert.equal(out.length, 2);
+  // Different inputs must produce different output bytes — proves both
+  // were processed (not deduplicated by accident).
+  assert.notEqual(out[0].data, out[1].data);
+  assert.equal(out[0].cached, false);
+  assert.equal(out[1].cached, false);
+});
+
+test("setWarningHandler swaps the active handler and returns the previous one", () => {
+  const calls: string[] = [];
+  const prev = setWarningHandler((m) => calls.push(m));
+  try {
+    // Second install: returns the handler we just installed (h1).
+    const inner = setWarningHandler((m) => calls.push(`new: ${m}`));
+    inner("via-h1");
+    assert.deepEqual(calls, ["via-h1"], "h1 was active until replaced");
+  } finally {
+    setWarningHandler(prev);
+  }
+});
+
+test("tiny passthrough: same input and output bytes do not double-cache", async () => {
+  clearCache();
+  // Tiny PNG (< 100KB) goes through the passthrough branch: output bytes
+  // equal input bytes. The storeResult path should NOT store a redundant
+  // entry under the same hash. We can't directly inspect the cache map,
+  // but we can verify the behavior by feeding the optimized bytes back —
+  // it must still hit the cache via the original (single) entry.
+  const tiny = await makePng(32, 32);
+  const a = await optimizeImages([
+    {
+      type: "image",
+      data: tiny.data.toString("base64"),
+      mimeType: "image/png",
+    },
+  ]);
+  const b = await optimizeImages([{ type: "image", data: a[0].data, mimeType: a[0].mimeType }]);
+  assert.equal(b[0].cached, true);
+  assert.equal(b[0].data, a[0].data);
 });

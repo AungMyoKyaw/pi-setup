@@ -56,9 +56,7 @@ export function formatDuration(durationMs: number): string {
   if (minutes < 60) return `${minutes}m${String(seconds).padStart(2, "0")}s`;
 
   const hours = Math.floor(minutes / 60);
-  return `${hours}h${String(minutes % 60).padStart(2, "0")}m${String(
-    seconds,
-  ).padStart(2, "0")}s`;
+  return `${hours}h${String(minutes % 60).padStart(2, "0")}m${String(seconds).padStart(2, "0")}s`;
 }
 
 function joinParts(parts: string[]): string {
@@ -79,11 +77,7 @@ function styleContext(
   return theme.fg("muted", contextDisplay);
 }
 
-function alignFooterSides(
-  left: string,
-  right: string,
-  width: number,
-): string | undefined {
+function alignFooterSides(left: string, right: string, width: number): string | undefined {
   const gap = width - visibleWidth(left) - visibleWidth(right);
   if (gap < 2) return undefined;
   return `${left}${" ".repeat(gap)}${right}`;

@@ -36,7 +36,10 @@ out=$(grep -rIn --exclude-dir=.git --exclude=audit.sh -E '/Users/[A-Za-z0-9._-]+
 hits "$out" "absolute home paths found"
 
 echo "== scanning for non-example emails =="
-out=$(grep -rInEh --exclude-dir=.git -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' . \
+# Domain must start with a letter (rules out patterns like shot@2x.png that
+# look like filenames, not addresses). audit.sh itself is excluded so the
+# pattern example in its own comments does not flag.
+out=$(grep -rInEh --exclude-dir=.git --exclude=audit.sh -E '[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}' . \
   | grep -vE '@(example\.com|example\.org|example\.net|localhost)' \
   | sort -u || true)
 hits "$out" "real-looking email addresses found"

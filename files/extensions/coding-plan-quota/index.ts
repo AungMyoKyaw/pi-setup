@@ -1,13 +1,10 @@
 import {
   CustomEditor,
   type ExtensionAPI,
+  type KeybindingsManager,
   type Theme,
 } from "@earendil-works/pi-coding-agent";
-import type {
-  EditorTheme,
-  KeybindingsManager,
-  TUI,
-} from "@earendil-works/pi-tui";
+import type { EditorTheme, TUI } from "@earendil-works/pi-tui";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import {
   fetchCodexQuota,
@@ -41,57 +38,39 @@ function fitBorder(
   let leftText = left;
   let rightText = right;
   while (
-    2 + visibleWidth(leftText) + visibleWidth(rightText) + MINIMUM_GAP >
-      width &&
+    2 + visibleWidth(leftText) + visibleWidth(rightText) + MINIMUM_GAP > width &&
     visibleWidth(rightText) > 0
   ) {
-    rightText = truncateToWidth(
-      rightText,
-      Math.max(0, visibleWidth(rightText) - 1),
-      "",
-    );
+    rightText = truncateToWidth(rightText, Math.max(0, visibleWidth(rightText) - 1), "");
   }
   while (
-    2 + visibleWidth(leftText) + visibleWidth(rightText) + MINIMUM_GAP >
-      width &&
+    2 + visibleWidth(leftText) + visibleWidth(rightText) + MINIMUM_GAP > width &&
     visibleWidth(leftText) > 0
   ) {
-    leftText = truncateToWidth(
-      leftText,
-      Math.max(0, visibleWidth(leftText) - 1),
-      "",
-    );
+    leftText = truncateToWidth(leftText, Math.max(0, visibleWidth(leftText) - 1), "");
   }
 
-  const gap = Math.max(
-    0,
-    width - 2 - visibleWidth(leftText) - visibleWidth(rightText),
-  );
+  const gap = Math.max(0, width - 2 - visibleWidth(leftText) - visibleWidth(rightText));
   return `${border("─")}${leftText}${fill("─".repeat(gap))}${rightText}${border("─")}`;
 }
 
 class QuotaPromptEditor extends CustomEditor {
   private readonly editorTheme: EditorTheme;
   private readonly uiTheme: Theme;
-  private readonly tui: TUI;
+  private readonly tuiInstance: TUI;
   private quotas: QuotaSnapshotSet = emptyQuotas();
 
-  constructor(
-    tui: TUI,
-    theme: EditorTheme,
-    keybindings: KeybindingsManager,
-    uiTheme: Theme,
-  ) {
+  constructor(tui: TUI, theme: EditorTheme, keybindings: KeybindingsManager, uiTheme: Theme) {
     super(tui, theme, keybindings);
     this.editorTheme = theme;
     this.uiTheme = uiTheme;
-    this.tui = tui;
+    this.tuiInstance = tui;
   }
 
   setQuotas(quotas: QuotaSnapshotSet): void {
     this.quotas = quotas;
     this.invalidate();
-    this.tui.requestRender();
+    this.tuiInstance.requestRender();
   }
 
   override render(width: number): string[] {
@@ -126,8 +105,7 @@ export default function (pi: ExtensionAPI) {
     stopRefreshTimer();
 
     const refresh = async () => {
-      if (!editor || refreshInFlight || generation !== sessionGeneration)
-        return;
+      if (!editor || refreshInFlight || generation !== sessionGeneration) return;
       refreshInFlight = true;
       try {
         const [llmapi, codex, kimi, copilot] = await Promise.all([
@@ -145,12 +123,7 @@ export default function (pi: ExtensionAPI) {
     };
 
     ctx.ui.setEditorComponent((tui, theme, keybindings) => {
-      const nextEditor = new QuotaPromptEditor(
-        tui,
-        theme,
-        keybindings,
-        ctx.ui.theme,
-      );
+      const nextEditor = new QuotaPromptEditor(tui, theme, keybindings, ctx.ui.theme);
       editor = nextEditor;
       void refresh();
       return nextEditor;

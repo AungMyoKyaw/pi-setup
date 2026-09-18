@@ -79,10 +79,7 @@ function parseFrontmatterSimple(content: string): {
   return { frontmatter: out, body };
 }
 
-async function loadAgentsFromDir(
-  dir: string,
-  source: "user" | "project",
-): Promise<AgentDef[]> {
+async function loadAgentsFromDir(dir: string, source: "user" | "project"): Promise<AgentDef[]> {
   const agents: AgentDef[] = [];
   if (!existsSync(dir)) return agents;
   let entries: import("node:fs").Dirent[];
@@ -102,10 +99,7 @@ async function loadAgentsFromDir(
       continue;
     }
     const { frontmatter, body } = parseFrontmatterSimple(content);
-    if (
-      typeof frontmatter.name !== "string" ||
-      typeof frontmatter.description !== "string"
-    )
+    if (typeof frontmatter.name !== "string" || typeof frontmatter.description !== "string")
       continue;
     const toolsRaw = frontmatter.tools;
     const tools =
@@ -121,8 +115,7 @@ async function loadAgentsFromDir(
       name: frontmatter.name,
       description: frontmatter.description,
       tools: tools && tools.length > 0 ? tools : undefined,
-      model:
-        typeof frontmatter.model === "string" ? frontmatter.model : undefined,
+      model: typeof frontmatter.model === "string" ? frontmatter.model : undefined,
       systemPrompt: body,
       source,
       filePath,
@@ -131,9 +124,7 @@ async function loadAgentsFromDir(
   return agents;
 }
 
-async function findNearestProjectAgentsDir(
-  cwd: string,
-): Promise<string | null> {
+async function findNearestProjectAgentsDir(cwd: string): Promise<string | null> {
   let current = cwd;
   while (true) {
     const candidate = path.join(current, ".pi", "agents");
@@ -154,12 +145,9 @@ export async function discoverAgents(
   const userDir = path.join(homedir(), ".pi", "agent", "agents");
   const projectDir = await findNearestProjectAgentsDir(cwd);
 
-  const userAgents =
-    scope === "project" ? [] : await loadAgentsFromDir(userDir, "user");
+  const userAgents = scope === "project" ? [] : await loadAgentsFromDir(userDir, "user");
   const projectAgents =
-    scope === "user" || !projectDir
-      ? []
-      : await loadAgentsFromDir(projectDir, "project");
+    scope === "user" || !projectDir ? [] : await loadAgentsFromDir(projectDir, "project");
 
   // Project agents override user agents with the same name.
   const map = new Map<string, AgentDef>();
@@ -187,17 +175,13 @@ function resolvePiInvocation(): { command: string; baseArgs: string[] } {
   return { command: process.execPath, baseArgs: [] };
 }
 
-export async function runAgentWorker(
-  input: WorkerSpawnInput,
-): Promise<WorkerSpawnOutput> {
+export async function runAgentWorker(input: WorkerSpawnInput): Promise<WorkerSpawnOutput> {
   const { agent, task, cwd, signal, model, thinkingLevel } = input;
   const args: string[] = ["--mode", "json", "-p", "--no-session"];
-  const useModel =
-    agent.model ?? (model ? `${model.provider}/${model.id}` : undefined);
+  const useModel = agent.model ?? (model ? `${model.provider}/${model.id}` : undefined);
   if (useModel) args.push("--model", useModel);
   if (!agent.model && thinkingLevel) args.push("--thinking", thinkingLevel);
-  if (agent.tools && agent.tools.length > 0)
-    args.push("--tools", agent.tools.join(","));
+  if (agent.tools && agent.tools.length > 0) args.push("--tools", agent.tools.join(","));
 
   let tmpPromptPath: string | null = null;
   if (agent.systemPrompt.trim()) {

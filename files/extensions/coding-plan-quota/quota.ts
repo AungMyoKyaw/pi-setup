@@ -6,6 +6,8 @@ export const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
 export const KIMI_USAGE_URL = "https://api.kimi.com/coding/v1/usages";
 export const COPILOT_USAGE_URL = "https://api.github.com/copilot_internal/user";
 export const QUOTA_TIMEOUT_MS = 1_500;
+export const QUOTA_MAX_ATTEMPTS = 3;
+export const QUOTA_RETRY_BASE_MS = 100;
 
 export type CodexQuotaWindow = {
   usedPercent: number;
@@ -152,13 +154,9 @@ function parseStandardWindow(value: unknown): StandardQuotaWindow | undefined {
 export function parseLlmQuotaResponse(raw: unknown): LlmQuotaSnapshot {
   if (!raw || typeof raw !== "object") return null;
   const response = raw as Record<string, unknown>;
-  const planType = stringValue(
-    response.plan_type ?? response.planType ?? response.plan,
-  );
+  const planType = stringValue(response.plan_type ?? response.planType ?? response.plan);
 
-  const directFiveHour = parseStandardWindow(
-    response.five_hour ?? response.fiveHour,
-  );
+  const directFiveHour = parseStandardWindow(response.five_hour ?? response.fiveHour);
   const directWeek = parseStandardWindow(response.week);
   if (directFiveHour || directWeek) {
     return {
@@ -207,17 +205,10 @@ export function parseLlmQuotaResponse(raw: unknown): LlmQuotaSnapshot {
   return null;
 }
 
-function parseFlatWindow(
-  used: unknown,
-  limit: unknown,
-): StandardQuotaWindow | undefined {
+function parseFlatWindow(used: unknown, limit: unknown): StandardQuotaWindow | undefined {
   const usedNumber = finiteNumber(used);
   const limitNumber = finiteNumber(limit);
-  if (
-    usedNumber === undefined ||
-    limitNumber === undefined ||
-    limitNumber <= 0
-  ) {
+  if (usedNumber === undefined || limitNumber === undefined || limitNumber <= 0) {
     return undefined;
   }
   return {
@@ -260,13 +251,12 @@ export function parseKimiUsageResponse(raw: unknown): KimiQuotaSnapshot {
       return {
         window: parseKimiWindow(item.detail),
         isFiveHour:
-          finiteNumber(window?.duration) === 300 &&
-          window?.timeUnit === "TIME_UNIT_MINUTE",
+          finiteNumber(window?.duration) === 300 && window?.timeUnit === "TIME_UNIT_MINUTE",
       };
     });
     fiveHour =
-      candidates.find((candidate) => candidate.isFiveHour && candidate.window)
-        ?.window ?? candidates.find((candidate) => candidate.window)?.window;
+      candidates.find((candidate) => candidate.isFiveHour && candidate.window)?.window ??
+      candidates.find((candidate) => candidate.window)?.window;
   }
 
   const membership =
@@ -305,12 +295,8 @@ function parseCopilotDetail(value: unknown): CopilotQuotaDetail | undefined {
   );
   const remaining =
     explicitRemaining ??
-    (entitlement !== undefined && used !== undefined
-      ? Math.max(0, entitlement - used)
-      : undefined);
-  const explicitPercent = finiteNumber(
-    raw.percent_remaining ?? raw.remaining_percentage,
-  );
+    (entitlement !== undefined && used !== undefined ? Math.max(0, entitlement - used) : undefined);
+  const explicitPercent = finiteNumber(raw.percent_remaining ?? raw.remaining_percentage);
   const percentRemaining =
     explicitPercent ??
     (entitlement !== undefined && remaining !== undefined && entitlement > 0
@@ -346,16 +332,12 @@ export function parseCopilotUsageResponse(raw: unknown): CopilotQuotaSnapshot {
       ? (response.quota_snapshots as Record<string, unknown>)
       : {};
   const planType = stringValue(response.copilot_plan ?? response.plan);
-  const resetDate = stringValue(
-    response.quota_reset_date ?? response.reset_date,
-  );
+  const resetDate = stringValue(response.quota_reset_date ?? response.reset_date);
   const premium = parseCopilotDetail(
     snapshots.premium_interactions ?? response.premium_interactions,
   );
   const chat = parseCopilotDetail(snapshots.chat ?? response.chat);
-  const completions = parseCopilotDetail(
-    snapshots.completions ?? response.completions,
-  );
+  const completions = parseCopilotDetail(snapshots.completions ?? response.completions);
 
   if (!premium && !chat && !completions && !planType) {
     return { error: "no quota snapshots in response" };
@@ -369,64 +351,46 @@ export function parseCopilotUsageResponse(raw: unknown): CopilotQuotaSnapshot {
   };
 }
 
-export function formatCodexQuota(
-  snapshot: CodexQuotaSnapshot,
-): string | undefined {
+export function formatCodexQuota(snapshot: CodexQuotaSnapshot): string | undefined {
   if (!snapshot) return undefined;
-  const parts = [
-    snapshot.planType ? `codex ${normalizePlan(snapshot.planType)}` : "codex",
-  ];
-  if (snapshot.primary)
-    parts.push(`5h ${Math.round(snapshot.primary.usedPercent)}%`);
-  if (snapshot.secondary)
-    parts.push(`wk ${Math.round(snapshot.secondary.usedPercent)}%`);
-  if (snapshot.error && parts.length === 1) parts.push("err");
+  const parts = [snapshot.planType ? `codex ${normalizePlan(snapshot.planType)}` : "codex"];
+  if (snapshot.primary) parts.push(`5h ${Math.round(snapshot.primary.usedPercent)}%`);
+  if (snapshot.secondary) parts.push(`wk ${Math.round(snapshot.secondary.usedPercent)}%`);
+  if (snapshot.error && parts.length === 1) return undefined;
   return parts.join(" · ");
 }
 
 export function formatLlmQuota(snapshot: LlmQuotaSnapshot): string | undefined {
   if (!snapshot) return undefined;
-  const parts = [
-    snapshot.planType ? `llmapi ${normalizePlan(snapshot.planType)}` : "llmapi",
-  ];
+  const parts = [snapshot.planType ? `llmapi ${normalizePlan(snapshot.planType)}` : "llmapi"];
   if (snapshot.fiveHour) parts.push(`5h ${Math.round(snapshot.fiveHour.pct)}%`);
   if (snapshot.week) parts.push(`7d ${Math.round(snapshot.week.pct)}%`);
-  if (snapshot.error && parts.length === 1) parts.push("err");
+  if (snapshot.error && parts.length === 1) return undefined;
   return parts.join(" · ");
 }
 
-export function formatKimiQuota(
-  snapshot: KimiQuotaSnapshot,
-): string | undefined {
+export function formatKimiQuota(snapshot: KimiQuotaSnapshot): string | undefined {
   if (!snapshot) return undefined;
-  const parts = [
-    snapshot.level ? `kimi ${normalizePlan(snapshot.level)}` : "kimi",
-  ];
+  const parts = [snapshot.level ? `kimi ${normalizePlan(snapshot.level)}` : "kimi"];
   if (snapshot.fiveHour) parts.push(`5h ${Math.round(snapshot.fiveHour.pct)}%`);
   if (snapshot.week) parts.push(`wk ${Math.round(snapshot.week.pct)}%`);
-  if (snapshot.error && parts.length === 1) parts.push("err");
+  if (snapshot.error && parts.length === 1) return undefined;
   return parts.join(" · ");
 }
 
-export function formatCopilotQuota(
-  snapshot: CopilotQuotaSnapshot,
-): string | undefined {
+export function formatCopilotQuota(snapshot: CopilotQuotaSnapshot): string | undefined {
   if (!snapshot) return undefined;
-  const parts = [
-    snapshot.planType ? `gh ${normalizePlan(snapshot.planType)}` : "gh copilot",
-  ];
+  const parts = [snapshot.planType ? `gh ${normalizePlan(snapshot.planType)}` : "gh copilot"];
   const detail = (label: string, quota: CopilotQuotaDetail | undefined) => {
     if (!quota) return;
     parts.push(
-      quota.unlimited
-        ? `${label} ∞`
-        : `${label} ${Math.round(quota.percentRemaining)}% left`,
+      quota.unlimited ? `${label} ∞` : `${label} ${Math.round(quota.percentRemaining)}% left`,
     );
   };
   detail("prem", snapshot.premium);
   detail("chat", snapshot.chat);
   detail("comp", snapshot.completions);
-  if (snapshot.error && parts.length === 1) parts.push("err");
+  if (snapshot.error && parts.length === 1) return undefined;
   return parts.join(" · ");
 }
 
@@ -454,12 +418,11 @@ type AuthResult = { credential?: StoredCredential; error?: string };
 
 function readStoredCredential(provider: string): AuthResult {
   try {
-    const configDir =
-      process.env.PI_CODING_AGENT_DIR ??
-      path.join(os.homedir(), ".pi", "agent");
-    const auth = JSON.parse(
-      readFileSync(path.join(configDir, "auth.json"), "utf8"),
-    ) as Record<string, StoredCredential | undefined>;
+    const configDir = process.env.PI_CODING_AGENT_DIR ?? path.join(os.homedir(), ".pi", "agent");
+    const auth = JSON.parse(readFileSync(path.join(configDir, "auth.json"), "utf8")) as Record<
+      string,
+      StoredCredential | undefined
+    >;
     const credential = auth[provider];
     return credential ? { credential } : { error: `${provider} not logged in` };
   } catch {
@@ -467,32 +430,62 @@ function readStoredCredential(provider: string): AuthResult {
   }
 }
 
-function credentialToken(
-  provider: string,
-  envNames: string[] = [],
-): string | undefined {
+function credentialToken(provider: string, envNames: string[] = []): string | undefined {
   const stored = readStoredCredential(provider).credential;
-  for (const value of [
-    stored?.access,
-    stored?.key,
-    ...envNames.map((name) => process.env[name]),
-  ]) {
+  for (const value of [stored?.access, stored?.key, ...envNames.map((name) => process.env[name])]) {
     if (value) return value;
   }
   return undefined;
 }
 
-async function fetchJson(
-  url: string,
-  headers: Record<string, string>,
-): Promise<unknown> {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: { Accept: "application/json", ...headers },
-    signal: AbortSignal.timeout(QUOTA_TIMEOUT_MS),
-  });
-  if (!response.ok) throw new Error(`http ${response.status}`);
-  return response.json();
+function isRetryableStatus(status: number): boolean {
+  return status === 408 || status === 425 || status === 429 || status >= 500;
+}
+
+function retryAfterMs(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1_000;
+
+  const timestamp = Date.parse(value);
+  if (!Number.isNaN(timestamp)) return Math.max(0, timestamp - Date.now());
+  return undefined;
+}
+
+function retryDelayMs(attempt: number, retryAfter: number | undefined): number {
+  if (retryAfter !== undefined) return retryAfter;
+  const exponential = QUOTA_RETRY_BASE_MS * 2 ** attempt;
+  return exponential + Math.floor(Math.random() * exponential);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJson(url: string, headers: Record<string, string>): Promise<unknown> {
+  for (let attempt = 0; attempt < QUOTA_MAX_ATTEMPTS; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "GET",
+        headers: { Accept: "application/json", ...headers },
+        signal: AbortSignal.timeout(QUOTA_TIMEOUT_MS),
+      });
+    } catch (error) {
+      if (attempt + 1 === QUOTA_MAX_ATTEMPTS) throw error;
+      await sleep(retryDelayMs(attempt, undefined));
+      continue;
+    }
+
+    if (response.ok) return response.json();
+    if (!isRetryableStatus(response.status) || attempt + 1 === QUOTA_MAX_ATTEMPTS) {
+      throw new Error(`http ${response.status}`);
+    }
+
+    await sleep(retryDelayMs(attempt, retryAfterMs(response.headers.get("Retry-After"))));
+  }
+
+  throw new Error("fetch failed");
 }
 
 export async function fetchCodexQuota(): Promise<CodexQuotaSnapshot> {
@@ -512,16 +505,16 @@ export async function fetchCodexQuota(): Promise<CodexQuotaSnapshot> {
 
 export async function fetchLlmQuota(): Promise<LlmQuotaSnapshot> {
   const base = process.env.ANTHROPIC_BASE_URL;
-  const token =
-    process.env.ANTHROPIC_AUTH_TOKEN ?? process.env.ANTHROPIC_API_KEY;
+  const token = process.env.ANTHROPIC_AUTH_TOKEN ?? process.env.ANTHROPIC_API_KEY;
   if (!base || !token) return null;
   const root = base.replace(/\/+$/, "");
   const url = `${root.endsWith("/v1") ? root : `${root}/v1`}/usage`;
   let lastError = "fetch failed";
-  for (const headers of [
+  const headerVariants: Array<Record<string, string>> = [
     { Authorization: `Bearer ${token}` },
     { "x-api-key": token },
-  ]) {
+  ];
+  for (const headers of headerVariants) {
     try {
       const parsed = parseLlmQuotaResponse(await fetchJson(url, headers));
       if (parsed) return parsed;
@@ -556,12 +549,8 @@ function parseCopilotApiCredential(raw: string): string {
 
 function copilotApiBase(credential: StoredCredential | undefined): string {
   if (credential?.enterpriseUrl) {
-    const enterprise = credential.enterpriseUrl
-      .replace(/^https?:\/\//, "")
-      .replace(/\/+$/, "");
-    return enterprise.startsWith("api.")
-      ? `https://${enterprise}`
-      : `https://api.${enterprise}`;
+    const enterprise = credential.enterpriseUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    return enterprise.startsWith("api.") ? `https://${enterprise}` : `https://api.${enterprise}`;
   }
   return "https://api.github.com";
 }
@@ -578,13 +567,10 @@ export async function fetchCopilotQuota(): Promise<CopilotQuotaSnapshot> {
 
   const token = parseCopilotApiCredential(rawToken);
   try {
-    const raw = await fetchJson(
-      `${copilotApiBase(credential)}/copilot_internal/user`,
-      {
-        Authorization: `Bearer ${token}`,
-        "User-Agent": "opencode/1.3.15",
-      },
-    );
+    const raw = await fetchJson(`${copilotApiBase(credential)}/copilot_internal/user`, {
+      Authorization: `Bearer ${token}`,
+      "User-Agent": "opencode/1.3.15",
+    });
     return parseCopilotUsageResponse(raw);
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };

@@ -13,6 +13,17 @@ export interface RateSample {
   count: number;
 }
 
+export function tokensPerSecond(
+  outputTokens: number,
+  startedAt: number | undefined,
+  endedAt: number,
+): number | null {
+  if (startedAt === undefined || outputTokens <= 0) return null;
+  const elapsedSec = (endedAt - startedAt) / 1000;
+  if (elapsedSec <= 0) return null;
+  return outputTokens / elapsedSec;
+}
+
 export class RateCalculator {
   private readonly windowMs: number;
   private samples: RateSample[] = [];

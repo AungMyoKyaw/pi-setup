@@ -11,8 +11,7 @@ import { describe, expect, test } from "bun:test";
  * to know it actually works.
  */
 
-const SHOULD_SKIP =
-  process.env.DESIGNmd_SKIP_CLI === "1" || process.env.CI === "true";
+const SHOULD_SKIP = process.env.DESIGNmd_SKIP_CLI === "1" || process.env.CI === "true";
 
 describe("cli: npx @google/design.md spec smoke test (T5)", () => {
   test.skipIf(SHOULD_SKIP)(

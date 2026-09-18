@@ -49,7 +49,7 @@ installer.
 | Core extensions (3)                   |         |      ✓      |  ✓   |
 | Core skills (workflow, docs)          |         |      ✓      |  ✓   |
 | `SOUL.md` identity file (opinionated) |         |             |  ✓   |
-| All extensions (incl. subagent fleet) |         |             |  ✓   |
+| All extensions (incl. brain capture)  |         |             |  ✓   |
 | All skills (email, playwright, pdf…)  |         |             |  ✓   |
 | Parallel RPC model routes             |         |             |  ✓   |
 

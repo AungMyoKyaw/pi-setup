@@ -75,7 +75,7 @@ components:
   extensions-core:
     description: small, low-risk pi extensions
     strategy: extension
-    extensions: [safe-home-cwd, compact-footer, request-done-notifier]
+    extensions: [safe-home-cwd, telemetry-footer, request-done-notifier]
 
   extensions-all:
     description: every extension, including heavier ones
@@ -83,27 +83,24 @@ components:
     extensions:
       [
         safe-home-cwd,
-        compact-footer,
+        telemetry-footer,
         request-done-notifier,
         coding-plan-quota,
         auto-optimize-images,
-        subagent,
-        tok-speed,
+        slim-second-brain,
       ]
     shared: [_shared]
 
   skills-core:
     description: workflow + documentation skills
     strategy: skill
-    skills: [software-delivery-loop, sdl, grill-me, grilling, loop-me, find-docs]
+    skills: [software-delivery-loop, grilling, loop-me, find-docs]
 
   skills-all:
     description: full skill set
     strategy: skill
     skills:
       - software-delivery-loop
-      - sdl
-      - grill-me
       - grilling
       - loop-me
       - find-docs
@@ -113,6 +110,8 @@ components:
       - playwright-cli
       - scribd-to-pdf
       - design-md
+      - design-principles
+      - tauri-app
 
 # Optional runtime prerequisites. Never fail a component over these — report
 # them in the final summary so the user can install later.

@@ -1,5 +1,17 @@
 import { describe, expect, test } from "bun:test";
-import { RateCalculator } from "./rate";
+import { RateCalculator, tokensPerSecond } from "./rate";
+
+describe("tokensPerSecond", () => {
+  test("uses wall-clock end time instead of provider creation timestamp", () => {
+    expect(tokensPerSecond(120, 1_000, 4_000)).toBe(40);
+  });
+
+  test("returns null when timing or output is unusable", () => {
+    expect(tokensPerSecond(0, 1_000, 4_000)).toBeNull();
+    expect(tokensPerSecond(120, undefined, 4_000)).toBeNull();
+    expect(tokensPerSecond(120, 4_000, 1_000)).toBeNull();
+  });
+});
 
 describe("RateCalculator", () => {
   test("empty calculator reports 0", () => {

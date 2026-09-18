@@ -12,5 +12,10 @@
   "scripts": {
     "test": "bun test safe-home-cwd.test.ts",
     "check": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
   }
 }

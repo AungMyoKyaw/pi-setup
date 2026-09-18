@@ -1,24 +1,8 @@
-import {
-  createLocalBashOperations,
-  type ExtensionAPI,
-} from "@earendil-works/pi-coding-agent";
+import { createLocalBashOperations, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { homedir } from "node:os";
-import {
-  ensureSafeHomeCwd,
-  isHomeCwd,
-  isProtectedCwd,
-  redirectToolInput,
-} from "./logic.ts";
+import { ensureSafeHomeCwd, isHomeCwd, isProtectedCwd, redirectToolInput } from "./logic.ts";
 
-const REDIRECTED_TOOLS = new Set([
-  "read",
-  "write",
-  "edit",
-  "grep",
-  "find",
-  "ls",
-  "bash",
-]);
+const REDIRECTED_TOOLS = new Set(["read", "write", "edit", "grep", "find", "ls", "bash"]);
 
 function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -26,8 +10,7 @@ function describeError(error: unknown): string {
 
 export default function (pi: ExtensionAPI) {
   pi.registerFlag("unsafe-home", {
-    description:
-      "Disable Pi home/root-directory safety redirection for this run",
+    description: "Disable Pi home/root-directory safety redirection for this run",
     type: "boolean",
     default: false,
   });
@@ -51,10 +34,7 @@ export default function (pi: ExtensionAPI) {
 
     if (mode === "failed" || !safeCwd) {
       if (ctx.hasUI) {
-        ctx.ui.notify(
-          `Pi ${protectedLocation} safety is unavailable; tool blocked`,
-          "error",
-        );
+        ctx.ui.notify(`Pi ${protectedLocation} safety is unavailable; tool blocked`, "error");
       }
       return {
         block: true,
@@ -99,26 +79,18 @@ export default function (pi: ExtensionAPI) {
   pi.on("session_start", (_event, ctx) => {
     if (pi.getFlag("unsafe-home") === true) {
       mode = "unsafe";
-      ctx.ui.notify(
-        `Pi ${protectedLocation} safety redirection disabled`,
-        "warning",
-      );
+      ctx.ui.notify(`Pi ${protectedLocation} safety redirection disabled`, "warning");
       return;
     }
 
     try {
       safeCwd = ensureSafeHomeCwd();
       mode = "active";
-      ctx.ui.notify(
-        `Pi ${protectedLocation} safety active: ${safeCwd}`,
-        "info",
-      );
+      ctx.ui.notify(`Pi ${protectedLocation} safety active: ${safeCwd}`, "info");
     } catch (error) {
       setupError = describeError(error);
       mode = "failed";
-      console.error(
-        `Pi ${protectedLocation} safety could not initialize: ${setupError}`,
-      );
+      console.error(`Pi ${protectedLocation} safety could not initialize: ${setupError}`);
       ctx.ui.notify(
         `Pi ${protectedLocation} safety failed; built-in tools will be blocked`,
         "error",

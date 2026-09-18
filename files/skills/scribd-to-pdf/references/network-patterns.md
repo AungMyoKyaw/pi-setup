@@ -129,11 +129,11 @@ async () => {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const out = new Map();
   const capture = () => {
-    for (const img of document.querySelectorAll('img.absimg')) {
+    for (const img of document.querySelectorAll("img.absimg")) {
       const m = img.closest('[id^="outer_page_"]')?.id?.match(/outer_page_(\d+)/);
       if (!m) continue;
       const n = +m[1];
-      if (img.src?.startsWith('http') && !out.has(n)) out.set(n, img.src);
+      if (img.src?.startsWith("http") && !out.has(n)) out.set(n, img.src);
     }
   };
   capture();
@@ -149,7 +149,7 @@ async () => {
   capture();
   return [...out.entries()]
     .sort((a, b) => a[0] - b[0])
-    .map(([n, u]) => ({ n, u: u.split('?')[0] }));
+    .map(([n, u]) => ({ n, u: u.split("?")[0] }));
 };
 ```
 

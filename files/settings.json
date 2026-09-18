@@ -8,6 +8,7 @@
   "modelThinkingLevels": {
     "*": "xhigh"
   },
+  "enabledModels": [],
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "always",
   "theme": "dark"

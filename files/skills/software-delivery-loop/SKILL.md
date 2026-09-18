@@ -36,22 +36,21 @@ When task classification is uncertain, prefer applying the workflow.
 
 ## Required dependencies
 
-Before planning, confirm that these skills are available at runtime:
+Before planning, confirm that `grilling` is available at runtime. Use
+`loop-me` only for workflow-design work.
 
-- `grill-me`
-- `loop-me`
-- `grilling` (transitive dependency)
-
-If a required dependency is missing, stop and ask the user to restore or install it. Never install it automatically. Never copy, substitute, or silently bypass a missing dependency.
+If `grilling` is missing, stop and ask the user to restore it. Never
+install it automatically. Never copy, substitute, or silently bypass a
+missing dependency.
 
 Dependency roles:
 
-- `grill-me`: interrogate non-trivial requirements and design decisions.
+- `grilling`: interrogate non-trivial requirements and provide the
+  stateful, round-based questioning protocol.
 - `loop-me`: create or revise recurring workflow specifications.
-- `grilling`: provide the stateful, round-based questioning protocol.
 - This skill: execute the approved software task, validate it, and measure the result.
 
-`loop-me` is required for workflow-design work but should not be forced into every ordinary feature or bug-fix run.
+`loop-me` is not required for ordinary features or bug fixes.
 
 ## Context preflight
 
@@ -81,18 +80,21 @@ Before implementation, produce a structured projection containing:
 - Required checkpoints
 - Questions that genuinely block execution
 
-Use `grill-me` for unresolved non-trivial requirements and design decisions. Ask questions one round at a time and attach a recommended answer to each question.
+Use `grilling` for unresolved non-trivial requirements and design decisions. Ask questions one round at a time and attach a recommended answer to each question.
 
 Ask only questions whose answers affect requirements, architecture, irreversible actions, security, deployment, or acceptance criteria. Infer ordinary implementation choices from project conventions and stored preferences.
 
 ## Autonomy and checkpoints
 
-After blocking decisions are resolved, work autonomously through inspection, implementation, testing, debugging, documentation, and local validation.
+For non-trivial software tasks, perform read-only discovery and establish a baseline before implementation. Then present one concise projection containing the prepared plan, expected changes, risks, recommendation, and exact decision required. Wait for explicit user confirmation before implementing.
 
-Push human review as late as practical. Present one concise brief containing the prepared work, risks, recommendation, and exact decision required.
+Before confirmation, do not modify source, configuration, tests, documentation, dependency manifests, lockfiles, schemas, or data; install or update dependencies; or run mutating commands. Read-only inspection and safe baseline checks are allowed.
+
+After confirmation, work autonomously through implementation, testing, debugging, documentation, and local validation. Do not ask again unless the scope, plan, or risk changes. If it changes, stop and present an updated projection.
 
 Approval is required before:
 
+- Implementing a non-trivial software change after projection
 - Production deployment
 - Pushing to a remote repository
 - Opening pull requests or issues

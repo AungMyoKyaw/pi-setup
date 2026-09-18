@@ -33,9 +33,7 @@ describe("protected cwd detection", () => {
   test("protects the filesystem root", () => {
     expect(isRootCwd("/")).toBe(true);
     expect(isProtectedCwd("/", "/Users/tester")).toBe(true);
-    expect(isProtectedCwd("/Users/tester/project", "/Users/tester")).toBe(
-      false,
-    );
+    expect(isProtectedCwd("/Users/tester/project", "/Users/tester")).toBe(false);
   });
 });
 
@@ -56,18 +54,12 @@ describe("relative tool redirection", () => {
   const safeCwd = "/tmp/pi-home-scratch";
 
   test("resolves relative paths under the safe cwd", () => {
-    expect(resolveSafeToolPath("src/index.ts", safeCwd)).toBe(
-      "/tmp/pi-home-scratch/src/index.ts",
-    );
-    expect(resolveSafeToolPath("@README.md", safeCwd)).toBe(
-      "/tmp/pi-home-scratch/README.md",
-    );
+    expect(resolveSafeToolPath("src/index.ts", safeCwd)).toBe("/tmp/pi-home-scratch/src/index.ts");
+    expect(resolveSafeToolPath("@README.md", safeCwd)).toBe("/tmp/pi-home-scratch/README.md");
   });
 
   test("preserves explicit absolute and tilde paths", () => {
-    expect(resolveSafeToolPath("/Users/tester/file.txt", safeCwd)).toBe(
-      "/Users/tester/file.txt",
-    );
+    expect(resolveSafeToolPath("/Users/tester/file.txt", safeCwd)).toBe("/Users/tester/file.txt");
     expect(resolveSafeToolPath("~/.zshrc", safeCwd)).toBe("~/.zshrc");
   });
 
@@ -90,9 +82,7 @@ describe("relative tool redirection", () => {
 describe("bash redirection", () => {
   test("quotes the safe cwd and prefixes the command", () => {
     const safeCwd = "/tmp/pi home/'scratch'";
-    expect(shellQuote(safeCwd)).toBe(
-      "'/tmp/pi home/'\\''scratch'\\''' ".trim(),
-    );
+    expect(shellQuote(safeCwd)).toBe("'/tmp/pi home/'\\''scratch'\\''' ".trim());
     expect(redirectBashCommand("pwd && printf 'ok'", safeCwd)).toBe(
       "cd '/tmp/pi home/'\\''scratch'\\''' && pwd && printf 'ok'",
     );

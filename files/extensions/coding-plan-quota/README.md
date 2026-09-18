@@ -9,4 +9,4 @@ Supported sources:
 - Kimi Coding: `kimi-coding` OAuth/API credentials, using `/coding/v1/usages`
 - GitHub Copilot: `github-copilot` OAuth/API credentials, using GitHub's authenticated Copilot quota endpoint
 
-The extension polls all configured providers in parallel every 30 seconds. A missing or unsupported provider is omitted; a configured provider that fails displays `err` without breaking Pi. It never changes, re-enables, or imports the disabled extensions.
+The extension polls all configured providers in parallel every 30 seconds. Each request retries transient network errors, timeouts, rate limits, and server errors up to three attempts. A missing, unsupported, or persistently failing provider is omitted from the prompt bar without breaking Pi. It never changes, re-enables, or imports the disabled extensions.

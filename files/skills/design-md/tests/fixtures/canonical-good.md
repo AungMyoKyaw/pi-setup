@@ -2,10 +2,10 @@
 name: Technical Handout
 description: A graduate-level computer science lecture handout in the tradition of an old established university.
 colors:
-  paper: '#F4F0E4'
-  ink: '#1E1A14'
-  vermilion: '#C3402A'
-  rule-gray: '#B8B0A2'
+  paper: "#F4F0E4"
+  ink: "#1E1A14"
+  vermilion: "#C3402A"
+  rule-gray: "#B8B0A2"
 typography:
   body:
     fontFamily: EB Garamond
@@ -26,11 +26,11 @@ spacing:
   page-margin: 96px
 components:
   page-frame:
-    backgroundColor: '{colors.paper}'
-    padding: '{spacing.page-margin}'
+    backgroundColor: "{colors.paper}"
+    padding: "{spacing.page-margin}"
   caption:
-    typography: '{typography.caption}'
-    textColor: '{colors.ink}'
+    typography: "{typography.caption}"
+    textColor: "{colors.ink}"
 ---
 
 ## Overview
