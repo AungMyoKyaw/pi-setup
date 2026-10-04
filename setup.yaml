@@ -25,8 +25,20 @@ version: 1
 
 profiles:
   minimal: [settings, prompts]
-  recommended: [settings, prompts, agents-base, extensions-core, skills-core]
-  full: [settings, parallel-tools, prompts, agents-base, soul, extensions-all, skills-all]
+  recommended:
+    [settings, prompts, agents-base, extensions-core, skills-core, subagents, system-appendix]
+  full:
+    [
+      settings,
+      parallel-tools,
+      prompts,
+      agents-base,
+      soul,
+      extensions-all,
+      skills-all,
+      subagents,
+      system-appendix,
+    ]
 
 components:
   settings:
@@ -39,6 +51,18 @@ components:
     description: model routes for parallel RPC tools (scout/plan/review)
     source: files/parallel-tools.json
     target: ~/.pi/agent/parallel-tools.json
+    strategy: copy
+
+  subagents:
+    description: pi sub-agent definitions (scout, planner, worker, reviewer)
+    source: files/subagents
+    target: ~/.pi/agent/agents
+    strategy: copy
+
+  system-appendix:
+    description: markdown appended to every system prompt on every turn
+    source: files/system/APPEND_SYSTEM.md
+    target: ~/.pi/agent/APPEND_SYSTEM.md
     strategy: copy
 
   prompts:

@@ -3,13 +3,18 @@
   "editorPaddingX": 1,
   "outputPad": 1,
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-luna",
-  "defaultThinkingLevel": "xhigh",
-  "modelThinkingLevels": {
-    "*": "xhigh"
-  },
-  "enabledModels": [],
+  "defaultModel": "gpt-6-luna",
+  "defaultThinkingLevel": "high",
+  "enabledModels": [
+    "llmapi/claude-opus-5-5",
+    "llmapi/gpt-6-astra",
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6-luna",
+    "openai-codex/gpt-6.1-sol",
+    "kimi-coding/k3"
+  ],
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "always",
-  "theme": "dark"
+  "theme": "dark",
+  "defaultTools": ["+codemode"]
 }

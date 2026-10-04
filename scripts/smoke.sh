@@ -93,6 +93,19 @@ for sk in software-delivery-loop grilling grill-me loop-me find-docs exa-search 
   rm -rf "$dst" && mkdir -p "$dst" && cp -R "$src/." "$dst/"
 done
 
+# --- 8. subagents (copy into ~/.pi/agent/agents) ---
+mkdir -p "$HOME/.pi/agent/agents"
+if [ -d "$REPO_ROOT/files/subagents" ]; then
+  for f in "$REPO_ROOT"/files/subagents/*.md; do
+    [ -f "$f" ] && cp "$f" "$HOME/.pi/agent/agents/$(basename "$f")"
+  done
+fi
+
+# --- 9. system-appendix (copy to ~/.pi/agent/APPEND_SYSTEM.md) ---
+if [ -f "$REPO_ROOT/files/system/APPEND_SYSTEM.md" ]; then
+  cp "$REPO_ROOT/files/system/APPEND_SYSTEM.md" "$HOME/.pi/agent/APPEND_SYSTEM.md"
+fi
+
 # --- Verify ---
 fail=0
 check() { # label, expected_count, actual
@@ -106,15 +119,19 @@ pr_n=$(ls "$HOME/.pi/agent/prompts" | wc -l | tr -d ' ')
 keys_n=$(python3 -c 'import json,sys;print(len(json.load(open(sys.argv[1]))))' "$HOME/.pi/agent/settings.json")
 sym_ok=$([ -L "$HOME/.pi/agent/AGENTS.md" ] && echo 1 || echo 0)
 pi_dep=$([ -d "$HOME/.pi/agent/extensions/safe-home-cwd/node_modules/@earendil-works/pi-coding-agent" ] && echo 1 || echo 0)
+sub_n=$(ls "$HOME/.pi/agent/agents" 2>/dev/null | wc -l | tr -d ' ')
+app_ok=$([ -f "$HOME/.pi/agent/APPEND_SYSTEM.md" ] && echo 1 || echo 0)
 
 echo ""
 echo ">>> RESULT"
-check "extensions (incl. _shared)" 7 "$ext_n"
+check "extensions (incl. _shared)"  7  "$ext_n"
 check "skills"                       15 "$sk_n"
 check "prompts"                      6  "$pr_n"
 check "settings.json top-level keys" 11 "$keys_n"
 check "AGENTS.md symlink present"    1  "$sym_ok"
 check "pi-coding-agent installed"    1  "$pi_dep"
+check "subagents"                    4  "$sub_n"
+check "APPEND_SYSTEM.md present"     1  "$app_ok"
 
 if [ "$fail" -eq 0 ]; then
   echo ""
