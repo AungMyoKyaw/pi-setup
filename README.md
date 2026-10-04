@@ -116,6 +116,15 @@ as-is or fork it into your own bootstrap.
    repos, machines, domains) to `.audit-deny` — one per line, gitignored —
    and the audit enforces them too.
 
+4. Or run the full local gate (`make verify`) which combines `prettier --check`,
+   the audit, and a per-extension install + type-check + test pass:
+
+   ```sh
+   make verify
+   ```
+
+The same gate runs in CI on every push and PR (`.github/workflows/audit.yml`).
+
 ## Layout
 
 - **`SETUP.md`** — the procedure your agent executes. The contract.
@@ -125,6 +134,10 @@ as-is or fork it into your own bootstrap.
 - **`files/`** — the actual configuration content that gets installed.
 - **`scripts/audit.sh`** — sensitive-data scanner. Runs before every push.
 - **`.audit-deny`** — your private name patterns (gitignored).
+- **`.github/workflows/audit.yml`** — CI: audit + format check + extension
+  install + type-check + tests, on every push and PR.
+- **`docs/`** — the [public landing page](https://aungmyokyaw.github.io/pi-setup/)
+  for non-agent readers.
 
 ## License
 

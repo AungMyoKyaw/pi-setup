@@ -123,3 +123,16 @@ Concise summary:
     `~/.pi/agent/settings.json`.
   - Restart pi for extensions and skills to load.
 - Anything you skipped under hard rule 2.
+
+## Versioning notes (1.0.2)
+
+- The default `lastChangelogVersion` shipped in `files/settings.json` tracks
+  the latest pi release so the changelog modal does not re-fire after an
+  install. If you maintain this repo, bump it in lockstep with pi releases.
+- Extensions with their own `package.json` (currently `auto-optimize-images`
+  and `safe-home-cwd`) carry `^1.0.2` of `@earendil-works/pi-coding-agent`.
+  Other extensions rely on the root `~/.pi/agent/node_modules` for resolution;
+  pi's loader handles this.
+- The `audit.sh` pattern for `Bearer` headers requires 32+ characters and the
+  JWT pattern requires all three segments. If you add new token shapes, update
+  both `scripts/audit.sh` and `.audit-deny`.

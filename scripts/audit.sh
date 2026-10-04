@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 # audit.sh — fail if the repo contains anything that must not be public.
 # Run before every push. Exits non-zero on any finding.
+#
+# Skips .git and node_modules. node_modules is gitignored and is left in
+# tree by `bun install` during local development; nothing in it can be
+# committed, so it never needs to be audited.
 set -u
 cd "$(dirname "$0")/.."
+
+EXCLUDE=(--exclude-dir=.git --exclude-dir=node_modules)
 
 fail=0
 hits() { # label, then grep results on stdin
@@ -14,33 +20,38 @@ hits() { # label, then grep results on stdin
 }
 
 echo "== scanning for secret patterns =="
-out=$(grep -rInE --exclude-dir=.git \
-  'sk-[A-Za-z0-9_-]{15,}|ghp_[A-Za-z0-9]{15,}|github_pat_[A-Za-z0-9_]{15,}|glpat-[A-Za-z0-9_-]{15,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,}|BEGIN [A-Z ]*PRIVATE KEY|Bearer [A-Za-z0-9._~-]{20,}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}' \
+# Patterns target vendor-specific token shapes plus generic JWTs and Bearer
+# headers. Lengths are tuned to the shortest realistic value per format; if
+# a future vendor ships a longer prefix, this stays correct (min), never loose.
+out=$(grep -rInE "${EXCLUDE[@]}" \
+  'sk-[A-Za-z0-9_-]{15,}|sk-ant-[A-Za-z0-9_-]{15,}|sess-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{15,}|github_pat_[A-Za-z0-9_]{15,}|glpat-[A-Za-z0-9_-]{15,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,}|BEGIN [A-Z ]*PRIVATE KEY|Bearer [A-Za-z0-9._~-]{32,}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}' \
   . || true)
 hits "$out" "secret-like tokens found"
 
 echo "== scanning for forbidden machine files =="
-out=$(find . -path ./.git -prune -o -type f \( \
+out=$(find . \( -name .git -o -name node_modules \) -prune -o -type f \( \
   -name 'auth.json' -o -name 'models.json' -o -name 'models-store.json' -o \
   -name 'trust.json' -o -name 'spend-state.json' -o -name 'run-history.jsonl' -o \
   -name '.skill-lock.json' -o -name '*.pem' -o -name '*.key' -o -name '.env' \
   \) -print || true)
 hits "$out" "forbidden files present"
 
-out=$(find . -path ./.git -prune -o -type d \( -name 'sessions' -o -name 'journal' -o -name 'node_modules' -o -name '__pycache__' \) -print || true)
+echo "== scanning for forbidden directories =="
+out=$(find . \( -name .git -o -name node_modules \) -prune -o -type d \( -name 'sessions' -o -name 'journal' -o -name '__pycache__' \) -print || true)
 hits "$out" "forbidden directories present"
 
-echo "== scanning for absolute user paths =="
-out=$(grep -rIn --exclude-dir=.git --exclude=audit.sh -E '/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+' . \
+echo "== scanning for absolute home paths =="
+out=$(grep -rIn "${EXCLUDE[@]}" --exclude=audit.sh -E '/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+' . \
   | grep -v '/Users/tester' || true)  # /Users/tester = fake fixture in extension tests
 hits "$out" "absolute home paths found"
 
 echo "== scanning for non-example emails =="
 # Domain must start with a letter (rules out patterns like shot@2x.png that
 # look like filenames, not addresses). audit.sh itself is excluded so the
-# pattern example in its own comments does not flag.
-out=$(grep -rInEh --exclude-dir=.git --exclude=audit.sh -E '[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}' . \
-  | grep -vE '@(example\.com|example\.org|example\.net|localhost)' \
+# pattern example in its own comments does not flag. Plus-addressing and
+# noreply aliases are also permitted.
+out=$(grep -rInEh "${EXCLUDE[@]}" --exclude=audit.sh -E '[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}' . \
+  | grep -vE '@(example\.com|example\.org|example\.net|localhost|noreply\.)' \
   | sort -u || true)
 hits "$out" "real-looking email addresses found"
 
@@ -49,7 +60,7 @@ echo "== scanning for private/local-only references =="
 # pattern per line). Keep yours locally; fork users add their own.
 deny=.audit-deny
 if [ -f "$deny" ]; then
-  out=$(grep -rIn --exclude-dir=.git --exclude=audit.sh --exclude=.audit-deny -f "$deny" . || true)
+  out=$(grep -rIn "${EXCLUDE[@]}" --exclude=audit.sh --exclude=.audit-deny -f "$deny" . || true)
   hits "$out" "private references found (patterns from $deny)"
 else
   echo "  (no .audit-deny — skipping private-name scan)"
