@@ -102,6 +102,7 @@ components:
     skills:
       - software-delivery-loop
       - grilling
+      - grill-me
       - loop-me
       - find-docs
       - exa-search
@@ -112,6 +113,8 @@ components:
       - design-md
       - design-principles
       - tauri-app
+      - caveman
+      - impeccable
 
 # Optional runtime prerequisites. Never fail a component over these — report
 # them in the final summary so the user can install later.
