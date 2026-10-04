@@ -7,3 +7,11 @@ LICENSE
 *.log
 *.pem
 *.key
+
+# Vendored UMD / minified bundles — never reformat
+*.umd.js
+*.min.js
+*.bundle.js
+
+# Impeccable skill ships vendored browser bundles (live-browser*.js)
+files/skills/impeccable/scripts/live-browser*.js

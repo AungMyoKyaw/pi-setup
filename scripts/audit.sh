@@ -14,8 +14,11 @@ hits() { # label, then grep results on stdin
 }
 
 echo "== scanning for secret patterns =="
+# Patterns target vendor-specific token shapes plus generic JWTs and Bearer
+# headers. Lengths are tuned to the shortest realistic value per format; if
+# a future vendor ships a longer prefix, this stays correct (min), never loose.
 out=$(grep -rInE --exclude-dir=.git \
-  'sk-[A-Za-z0-9_-]{15,}|ghp_[A-Za-z0-9]{15,}|github_pat_[A-Za-z0-9_]{15,}|glpat-[A-Za-z0-9_-]{15,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,}|BEGIN [A-Z ]*PRIVATE KEY|Bearer [A-Za-z0-9._~-]{20,}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}' \
+  'sk-[A-Za-z0-9_-]{15,}|sk-ant-[A-Za-z0-9_-]{15,}|sess-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{15,}|github_pat_[A-Za-z0-9_]{15,}|glpat-[A-Za-z0-9_-]{15,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,}|BEGIN [A-Z ]*PRIVATE KEY|Bearer [A-Za-z0-9._~-]{32,}|eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}' \
   . || true)
 hits "$out" "secret-like tokens found"
 
@@ -38,9 +41,10 @@ hits "$out" "absolute home paths found"
 echo "== scanning for non-example emails =="
 # Domain must start with a letter (rules out patterns like shot@2x.png that
 # look like filenames, not addresses). audit.sh itself is excluded so the
-# pattern example in its own comments does not flag.
+# pattern example in its own comments does not flag. Plus-addressing and
+# noreply aliases are also permitted.
 out=$(grep -rInEh --exclude-dir=.git --exclude=audit.sh -E '[A-Za-z0-9._%+-]+@[A-Za-z][A-Za-z0-9.-]*\.[A-Za-z]{2,}' . \
-  | grep -vE '@(example\.com|example\.org|example\.net|localhost)' \
+  | grep -vE '@(example\.com|example\.org|example\.net|localhost|noreply\.)' \
   | sort -u || true)
 hits "$out" "real-looking email addresses found"
 

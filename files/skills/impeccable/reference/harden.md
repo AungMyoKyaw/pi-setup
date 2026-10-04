@@ -273,9 +273,7 @@ t("items", { count }); // Handles complex plural rules
   required
   aria-describedby="username-hint"
 />
-<small id="username-hint">
-  Letters and numbers only, up to 100 characters
-</small>
+<small id="username-hint"> Letters and numbers only, up to 100 characters </small>
 ```
 
 ### Accessibility Resilience
