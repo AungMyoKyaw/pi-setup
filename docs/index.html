@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>pi-setup — agent-native setup for the pi coding agent</title>
+    <title>pi-setup: agent-native setup for the pi coding agent</title>
     <meta
       name="description"
       content="No install script. Your pi agent reads the repo and configures itself."
@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#0C0B09" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="pi-setup — agent-native setup for the pi coding agent" />
+    <meta property="og:title" content="pi-setup: agent-native setup for the pi coding agent" />
     <meta
       property="og:description"
       content="No install script. Your pi agent reads the repo and configures itself."
@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://github.com/AungMyoKyaw/pi-setup" />
     <meta property="og:image" content="favicon.svg" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="pi-setup — agent-native setup for the pi coding agent" />
+    <meta name="twitter:title" content="pi-setup: agent-native setup for the pi coding agent" />
     <meta
       name="twitter:description"
       content="No install script. Your pi agent reads the repo and configures itself."
@@ -86,7 +86,7 @@
       .badge {
         display: inline-flex;
         align-items: stretch;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         line-height: 1;
         letter-spacing: 0.14em;
@@ -237,7 +237,7 @@
             your machine.
           </li>
           <li>
-            2. It shows you a plan — every file it will create, merge, or skip — and asks once,
+            2. It shows you a plan (every file it will create, merge, or skip) and asks once,
             unless you pre-approved.
           </li>
           <li>
@@ -358,7 +358,7 @@
           </tbody>
         </table>
         <p class="mt-4 text-ink-dim max-w-[68ch]">
-          Identity and memory files are skip-if-exists — the agent never overwrites yours.
+          Identity and memory files are skip-if-exists. The agent never overwrites yours.
         </p>
       </section>
 
@@ -373,8 +373,8 @@
         </h2>
         <ul class="mt-6 space-y-4 list-none max-w-[68ch]">
           <li>
-            <span aria-hidden="true">→</span> Credentials (auth.json), sessions, model caches, trust
-            state — anything not in the manifest.
+            <span aria-hidden="true">→</span> Credentials (auth.json), sessions, model caches, and trust
+            state. Anything not in the manifest is left alone.
           </li>
           <li>
             <span aria-hidden="true">→</span> Every overwrite is backed up to ~/.pi-setup-backups/
@@ -398,7 +398,7 @@
         </h2>
         <p class="mt-6 max-w-[68ch]">
           Fork the repo, replace everything under files/ with your own config, edit setup.yaml to
-          match, and run the audit before every push — it fails on leaked secrets, absolute home
+          match, and run the audit before every push. It fails on leaked secrets, absolute home
           paths, and private machine files.
         </p>
         <div class="mt-6 border border-line bg-panel p-5 text-body">
@@ -427,7 +427,7 @@
             href="https://github.com/AungMyoKyaw/pi-setup/blob/master/LICENSE"
             >AGPL-3.0</a
           >
-          <span class="text-ink-dim">— Aung Myo Kyaw</span>
+          <span class="text-ink-dim">Aung Myo Kyaw</span>
         </div>
       </footer>
     </main>
@@ -466,7 +466,7 @@
             selectFallback();
             flash(
               "Press ⌘/Ctrl+C",
-              "Clipboard blocked. Prompt selected — press Cmd or Ctrl plus C to copy.",
+              "Clipboard blocked. Prompt selected. Press Cmd or Ctrl plus C to copy.",
             );
           }
         });

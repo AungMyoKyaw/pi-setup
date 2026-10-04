@@ -9,6 +9,9 @@ colors:
   ink: "#EDE6D6"
   ink-dim: "#8A8272"
   line: "#2A261E"
+  print-canvas: "#FFFFFF"
+  print-ink: "#000000"
+  print-ink-dim: "#444444"
 typography:
   display:
     fontFamily: JetBrains Mono
@@ -32,6 +35,12 @@ typography:
     fontSize: 12px
     fontWeight: 500
     lineHeight: 1.4
+    letterSpacing: 0.14em
+  badge:
+    fontFamily: JetBrains Mono
+    fontSize: 10px
+    fontWeight: 700
+    lineHeight: 1
     letterSpacing: 0.14em
 rounded:
   none: 0px
@@ -161,9 +170,14 @@ plainly.
 - **badge** — flat plastic SVGs at `docs/badges/*.svg`, 20px tall, square
   corners. Two cells per badge: a key cell in `panel` over `line` border,
   a value cell in `canvas` over `line` border. Text is `JetBrains Mono`
-  10px / 700 / 0.5em tracking, uppercase. Key uses `ink-dim`; value uses
+  10px / 700 / 0.14em tracking, uppercase. Key uses `ink-dim`; value uses
   `ink`; the one accent badge (`mode`) uses `primary` for the value. No
   rounding, no gradients, no shadows, no animation.
+- **print-palette** — ink-on-paper inversion for printed man pages.
+  `{colors.print-canvas}` background, `{colors.print-ink}` text, with
+  `{colors.print-ink-dim}` reserved for secondary captions. The accent
+  `{colors.primary}` collapses to `{colors.print-ink}` in print so the
+  page stays monochrome on paper.
 
 ## Do's and Don'ts
 
