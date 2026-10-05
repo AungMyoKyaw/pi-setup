@@ -1,0 +1,21 @@
+{
+  "name": "pi-auto-todo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Auto-create TODO.md / PLAN.md per user request, prompt the agent to fill them, write outcome.md on settle",
+  "scripts": {
+    "test": "bun test run-id.test.ts trigger.test.ts templates.test.ts",
+    "check": "tsc -p tsconfig.json"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}

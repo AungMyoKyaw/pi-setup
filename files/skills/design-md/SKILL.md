@@ -100,6 +100,19 @@ CONSUME failure modes:
 - **Ornament smuggling.** Adding a glow, gradient, drop shadow, glass
   surface, or rounded corner that the Do's and Don'ts forbid.
 
+## CONSUME checklist (paste into your thinking)
+
+- [ ] Reference named in Overview (a real object, not adjectives).
+- [ ] Audience and substrate stated.
+- [ ] Colors used by role, not by literal value.
+- [ ] Type roles (headline, body, label) used, not raw sizes.
+- [ ] Layout described in prose terms, not metric soup.
+- [ ] Elevation posture honored (flat / single-shadow / layered).
+- [ ] Shape posture honored (rounded / square / graded).
+- [ ] Do's and Don'ts read; no ornament smuggling.
+- [ ] Tokens referenced via `{path}` in components, not hardcoded.
+- [ ] Gaps flagged, not silently invented.
+
 ---
 
 ## Mode 2 — AUTHOR: draft a new DESIGN.md
@@ -208,6 +221,19 @@ AUTHOR failure modes:
   Push for a referent. If the user insists, the design will be generic —
   say so and ask permission to proceed generic.
 - **Empty Do's and Don'ts.** "Don't be ugly." Real constraints only.
+
+## AUTHOR checklist (paste into your thinking)
+
+- [ ] One specific reference, named.
+- [ ] Audience and substrate stated.
+- [ ] Colors have roles and non-roles.
+- [ ] Typography has roles, not just fonts.
+- [ ] Layout described in prose, not just numbers.
+- [ ] Elevation posture stated.
+- [ ] Shapes posture stated.
+- [ ] Do's and Don'ts has ten items minimum, each a real constraint.
+- [ ] No orphan adjectives ("modern", "clean", "premium", "beautiful").
+- [ ] Components use `{path}` references, not literal values.
 
 ---
 
@@ -369,9 +395,23 @@ automatically.
 
 ---
 
-When examples are needed, use the upstream repository's `examples/` and
-read each example's prose before its tokens. When schema details are
-unclear, run `npx @google/design.md spec`; the CLI is authoritative.
+## Canonical examples (read prose first, tokens second)
+
+These live in the upstream repo under `examples/`. Each one is a complete
+DESIGN.md — read the Overview and Do's and Don'ts before the YAML.
+
+- `examples/atmospheric-glass` — Glassmorphism weather UI. Monochromatic
+  white palette over a vibrant gradient, blur-driven depth, `xl` radii.
+- `examples/paws-and-paths` — Modern corporate with a friendly twist.
+  Golden Retriever orange drives action; Sky Walk blue is the calmer
+  counterpoint; generous whitespace.
+- `examples/totality-festival` — Cosmic premium / eclipse-themed.
+  Obsidian base with amber primary, glassmorphism, Ambient Glow on
+  interaction.
+
+When in doubt about the format, run `npx @google/design.md spec` and
+trust the canonical output over this skill's notes — the spec is the
+source of truth; this skill is operating instructions.
 
 ## Cross-references
 

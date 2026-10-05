@@ -3,8 +3,8 @@
 ## Current state
 
 - Pi's native same-turn parallel tool execution is available and is the default.
-- This configuration has no extra fan-out skill, extension, team runtime, or subagent runtime. Files under disabled locations are archives and are not loaded.
-- Use only Pi's native tool-call execution in the normal workflow. The standalone orchestration artifacts in the configuration are not model tools.
+- The `subagent` extension is available for isolated agent sessions. Files under disabled locations are archives and are not loaded.
+- Prefer parallel execution for independent work: use native parallel tool calls for small bounded operations, and delegate substantial independent work to subagents when that can reduce elapsed time or improve focused analysis. Avoid fan-out when setup and coordination cost more than the work.
 
 ## Native behavior
 
@@ -16,10 +16,9 @@
 
 ## Operating rules
 
-- Fan out only independent, bounded operations whose arguments are already known.
-- Emit all sibling calls in the same assistant message. Do not serialize independent calls across turns or hide a large fan-out in a shell loop.
-- Use sequential turns when one operation needs another's result, when operations share mutable state, or when writes could conflict.
-- Account for every call's result; report failures instead of silently dropping them.
+- Fan out independent, bounded operations whose arguments are already known. Emit sibling native tool calls in the same assistant message. Do not serialize independent calls across turns or hide a large fan-out in a shell loop.
+- Use subagents for substantial tasks that can run independently, especially separate investigations, reviews, or implementation areas. Give each agent a clear scope and integrate/check every result.
+- Use sequential turns when one operation needs another's result, when operations share mutable state, or when writes could conflict. Account for every call's result; report failures instead of silently dropping them.
 
 ## Extension boundary
 

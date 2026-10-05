@@ -112,6 +112,7 @@ components:
         coding-plan-quota,
         auto-optimize-images,
         slim-second-brain,
+        auto-todo,
       ]
     shared: [_shared]
 
@@ -135,7 +136,6 @@ components:
       - playwright-cli
       - scribd-to-pdf
       - design-md
-      - design-principles
       - tauri-app
       - caveman
       - impeccable

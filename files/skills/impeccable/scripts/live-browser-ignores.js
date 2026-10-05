@@ -155,7 +155,8 @@
     const knownPages = [];
     for (const entry of Array.isArray(pageFiles) ? pageFiles : []) {
       if (typeof entry !== "string" || !entry) continue;
-      if (entry === pagePath || entry.endsWith("/" + pagePath)) knownPages.push(entry);
+      if (entry === pagePath || entry.endsWith("/" + pagePath))
+        knownPages.push(entry);
     }
     if (knownPages.length === 1) {
       addSuffixes(knownPages[0]);
@@ -170,7 +171,12 @@
     let common = prefixes.length > 0 ? prefixes[0] : [];
     for (const segments of prefixes.slice(1)) {
       let i = 0;
-      while (i < common.length && i < segments.length && common[i] === segments[i]) i += 1;
+      while (
+        i < common.length &&
+        i < segments.length &&
+        common[i] === segments[i]
+      )
+        i += 1;
       common = common.slice(0, i);
     }
 
@@ -212,7 +218,10 @@
     const ignoreFileGlobs = asArray(config.ignoreFiles).filter(
       (glob) => typeof glob === "string" && glob.trim(),
     );
-    if (ignoreFileGlobs.length > 0 && matchesScope(ignoreFileGlobs, candidates)) {
+    if (
+      ignoreFileGlobs.length > 0 &&
+      matchesScope(ignoreFileGlobs, candidates)
+    ) {
       return { disabledRules: [], disabledValues: [], skipScan: true };
     }
 
@@ -230,12 +239,17 @@
       const value = normalizeIgnoreValue(entry.value);
       if (!rule || !value) continue;
       const files = [
-        ...(typeof entry.file === "string" && entry.file.trim() ? [entry.file.trim()] : []),
-        ...asArray(entry.files).filter((glob) => typeof glob === "string" && glob.trim()),
+        ...(typeof entry.file === "string" && entry.file.trim()
+          ? [entry.file.trim()]
+          : []),
+        ...asArray(entry.files).filter(
+          (glob) => typeof glob === "string" && glob.trim(),
+        ),
       ];
       if (value === "*") {
         // Wildcards suppress their rule only inside the files they name.
-        if (files.length > 0 && matchesScope(files, candidates)) disabledRules.add(rule);
+        if (files.length > 0 && matchesScope(files, candidates))
+          disabledRules.add(rule);
         continue;
       }
       if (files.length > 0 && !matchesScope(files, candidates)) continue;

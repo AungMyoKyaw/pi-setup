@@ -52,7 +52,10 @@
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (Number.isInteger(parsed.checkpointRevision)) {
-          checkpointRevision = Math.max(checkpointRevision, parsed.checkpointRevision);
+          checkpointRevision = Math.max(
+            checkpointRevision,
+            parsed.checkpointRevision,
+          );
         }
         return parsed;
       } catch {
@@ -81,7 +84,8 @@
     }
 
     function seedCheckpointRevision(value) {
-      if (Number.isInteger(value)) checkpointRevision = Math.max(checkpointRevision, value);
+      if (Number.isInteger(value))
+        checkpointRevision = Math.max(checkpointRevision, value);
       return checkpointRevision;
     }
 
@@ -121,7 +125,8 @@
         return;
       }
       const remaining = readHandledIds().filter((existing) => existing !== id);
-      if (remaining.length > 0) safeWrite(handledKey, JSON.stringify(remaining));
+      if (remaining.length > 0)
+        safeWrite(handledKey, JSON.stringify(remaining));
       else safeRemove(handledKey);
     }
 

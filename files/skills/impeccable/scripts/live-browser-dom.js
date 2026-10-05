@@ -21,7 +21,10 @@
     const tagsToSkip = skipTags || new Set();
 
     function own(el) {
-      return el && (el.id?.startsWith(prefix) || el.closest?.('[id^="' + prefix + '"]'));
+      return (
+        el &&
+        (el.id?.startsWith(prefix) || el.closest?.('[id^="' + prefix + '"]'))
+      );
     }
 
     function pickable(el) {
@@ -36,7 +39,8 @@
       if (!el) return "";
       let s = el.tagName.toLowerCase();
       if (el.id) s += "#" + el.id;
-      else if (el.classList.length) s += "." + [...el.classList].slice(0, 2).join(".");
+      else if (el.classList.length)
+        s += "." + [...el.classList].slice(0, 2).join(".");
       return s;
     }
 
@@ -94,13 +98,19 @@
     }
 
     function id8() {
-      if (crypto?.randomUUID) return crypto.randomUUID().replace(/-/g, "").slice(0, 8);
-      return (Math.random().toString(16).slice(2) + Date.now().toString(16)).slice(0, 8);
+      if (crypto?.randomUUID)
+        return crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+      return (
+        Math.random().toString(16).slice(2) + Date.now().toString(16)
+      ).slice(0, 8);
     }
 
     function cssId(id) {
       if (css?.escape) return css.escape(id);
-      return String(id).replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1");
+      return String(id).replace(
+        /([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g,
+        "\\$1",
+      );
     }
 
     function liveUiRoot() {
@@ -136,7 +146,8 @@
 
     function activeElementDeep() {
       let active = doc.activeElement;
-      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+      while (active?.shadowRoot?.activeElement)
+        active = active.shadowRoot.activeElement;
       return active;
     }
 

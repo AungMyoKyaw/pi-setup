@@ -74,14 +74,21 @@ When **not** to swap:
 
 After scaffolding, regenerate `tsconfig.json` if needed (`bunx tsc --init`) and ensure scripts in `package.json` work via `bun run`. They should — Tauri's scripts are plain Node-compatible.
 
-## Delivery workflow
+## SDL workflow (mandatory)
 
-For non-trivial Tauri work, apply
-`~/.agents/skills/software-delivery-loop/SKILL.md` for intake, projection,
-validation, and outcome reporting. This skill supplies the Tauri-specific
-stack, scaffold, schema, and smoke-test checkpoints below.
+Apply the Software Delivery Loop on every non-trivial Tauri build. See `~/.agents/skills/software-delivery-loop/SKILL.md`.
 
-Keep run artifacts at `~/.agents/runs/<date>/<run-id>/`, outside the project repo by default.
+1. **Context preflight** — read `AGENTS.md`, project README, any existing `Cargo.toml` / `package.json`.
+2. **Intake & projection** — produce `projection.md` with: requirement interpretation, explicit requirements, non-goals, conventions, assumptions, recommended plan, acceptance criteria, risks, checkpoints, blocking questions.
+3. **Grill** unresolved non-trivial decisions (auth model, IPC surface, schema design, packaging targets, distribution signing) one round at a time via `grill-me`, each with a recommended default.
+4. **Inspect** target directory; if a repo exists, baseline it.
+5. **Scaffold** the smallest coherent slice (see below).
+6. **Validate** — run the validation commands listed further down. Fix failures at the root cause.
+7. **Iterate** until validation passes.
+8. **Commit locally** only after validation passes. **Ask before** push, PR, release, signing, or any irreversible external action.
+9. **Outcome report** — write `outcome.md` with work done, validation evidence, projection vs reality, risks, token/time cost.
+
+Store run artifacts at `~/.agents/runs/<date>/<run-id>/` (outside the project repo by default).
 
 ## Scaffold (latest stable stack)
 
