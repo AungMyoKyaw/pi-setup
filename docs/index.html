@@ -168,9 +168,10 @@
           Agent-native setup for the pi coding agent
         </p>
         <p class="mt-6 max-w-[62ch] text-body">
-          No install script. Your agent reads the repo, inspects your machine, shows you a plan,
-          backs up anything it overwrites, and verifies the result. The repo is the spec; the agent
-          is the installer.
+          No install script. Your agent reads the manifest, checks your machine, plans each change,
+          backs up overwritten files, installs only the selected profile, and verifies the result.
+          Pi is required. Git is preferred for remote setup; Bun and Python gate optional
+          components.
         </p>
 
         <!-- prompt-block -->
@@ -195,7 +196,18 @@
           <span id="copy-status" class="sr-only" aria-live="polite" aria-atomic="true"></span>
         </div>
         <p class="mt-4 text-headline font-bold uppercase tracking-label text-ink-dim">
-          Paste it into your pi agent. That is the whole installer.
+          Paste into pi. The agent follows
+          <a
+            class="text-primary hover:underline"
+            href="https://github.com/AungMyoKyaw/pi-setup/blob/master/SETUP.md"
+            >SETUP.md</a
+          >;
+          <a
+            class="text-primary hover:underline"
+            href="https://github.com/AungMyoKyaw/pi-setup/blob/master/VERIFY.md"
+            >VERIFY.md</a
+          >
+          defines post-install checks.
         </p>
       </section>
 
@@ -233,16 +245,17 @@
         </h2>
         <ol class="mt-6 space-y-4 list-none max-w-[68ch]">
           <li>
-            1. You paste the prompt. Your agent fetches SETUP.md and the manifest, then inspects
-            your machine.
+            1. You paste the prompt. Your agent reads SETUP.md and setup.yaml, checks pi, Git, Bun,
+            Python, OS, and existing pi/agents directories.
           </li>
           <li>
-            2. It shows you a plan (every file it will create, merge, or skip) and asks once, unless
-            you pre-approved.
+            2. It lists files to create, merge, copy, link, or skip. Without prior approval, it asks
+            once before applying the plan.
           </li>
           <li>
-            3. It applies the plan with backups, verifies the result, and reports what changed.
-            Re-running the same prompt updates you; the procedure is idempotent.
+            3. It applies the selected profile, backs up overwritten files, verifies the install,
+            and reports changes. Re-running refreshes managed files while preserving user identity
+            files.
           </li>
         </ol>
       </section>
@@ -251,7 +264,7 @@
       <section class="mt-24">
         <div class="h-px bg-line"></div>
         <h2
-          id="profiles"
+          id="what-you-get"
           class="mt-3 text-headline font-bold uppercase tracking-label text-ink-dim"
         >
           Profiles
@@ -314,7 +327,7 @@
               </td>
             </tr>
             <tr class="border-t border-line">
-              <td class="py-3 pr-4">Core skills (workflow, docs)</td>
+              <td class="py-3 pr-4">Core skills (5 workflow and docs)</td>
               <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
               <td class="py-3 px-4 text-primary" aria-label="included">
                 <span aria-hidden="true">✓</span>
@@ -332,7 +345,7 @@
               </td>
             </tr>
             <tr class="border-t border-line">
-              <td class="py-3 pr-4">All extensions (8, incl. brain + Jev)</td>
+              <td class="py-3 pr-4">All extensions (8)</td>
               <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
               <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
               <td class="py-3 pl-4 text-primary" aria-label="included">
@@ -340,7 +353,7 @@
               </td>
             </tr>
             <tr class="border-t border-line">
-              <td class="py-3 pr-4">All skills (email, playwright, pdf…)</td>
+              <td class="py-3 pr-4">All skills (14)</td>
               <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
               <td class="py-3 px-4 text-ink-dim" aria-label="not included">—</td>
               <td class="py-3 pl-4 text-primary" aria-label="included">
@@ -350,9 +363,17 @@
           </tbody>
         </table>
         <p class="mt-4 text-ink-dim max-w-[68ch]">
-          Identity and memory files are skip-if-exists. The agent never overwrites yours. Full
-          includes Jev checkpoints (Pi 1.0.4+; classifier credentials optional). Native tool
-          concurrency needs no parallel-tools configuration.
+          Recommended adds settings and prompts with global instructions/memory, three core
+          extensions, five skills, four subagent definitions, and a system-prompt appendix. Core
+          extensions redirect built-in file/shell tools away from home/root, show usage in the
+          footer, and notify when requests finish. Core skills cover delivery workflows, grilling,
+          and current developer documentation. Full adds quota display, image optimization, Second
+          Brain retrieval, auto TODO/PLAN artifacts, Jev checkpoints, an opt-in SOUL.md, and skills
+          for Exa search, Gmail, image metadata cleanup, browser automation, Scribd PDFs, design
+          systems, Tauri apps, caveman style, and frontend quality. Jev requires Pi 1.0.4+;
+          classifier credentials are optional. Missing optional prerequisites only skip affected
+          components. Native tool concurrency needs no extra configuration. Subagent definitions do
+          not install the subagent tool.
         </p>
       </section>
 
@@ -367,16 +388,18 @@
         </h2>
         <ul class="mt-6 space-y-4 list-none max-w-[68ch]">
           <li>
-            <span aria-hidden="true">→</span> Credentials (auth.json), sessions, model caches, and
-            trust state. Anything not in the manifest is left alone.
+            <span aria-hidden="true">→</span> Provider credentials (auth.json), model caches,
+            trust/spend/run state, sessions, and memory/journal/. These are never inspected,
+            printed, copied, or uploaded; unrelated files stay untouched.
           </li>
           <li>
-            <span aria-hidden="true">→</span> Every overwrite is backed up to ~/.pi-setup-backups/
-            first.
+            <span aria-hidden="true">→</span> Every overwrite is backed up to
+            ~/.pi-setup-backups/&lt;UTC timestamp&gt;/ before replacement. Settings are deep-merged;
+            existing identity and memory files are skipped.
           </li>
           <li>
-            <span aria-hidden="true">→</span> After setup you authenticate your own provider (/login
-            inside pi). No keys ship in the repo.
+            <span aria-hidden="true">→</span> Authenticate your provider with /login inside pi, then
+            restart pi to load extensions and skills. No keys ship in the repo.
           </li>
         </ul>
       </section>
@@ -391,14 +414,15 @@
           Make it yours
         </h2>
         <p class="mt-6 max-w-[68ch]">
-          Fork the repo, replace everything under files/ with your own config, edit setup.yaml to
-          match, and run the audit before every push. It fails on leaked secrets, absolute home
-          paths, and private machine files.
+          Fork the repo, replace files/ with your own config, edit setup.yaml, then run the local
+          gates. The audit checks for leaked secrets, absolute home paths, and private machine
+          files. make verify also runs formatting, extension typechecks/tests, and manifest/smoke
+          regression tests; CI runs the same gate on pushes and pull requests.
         </p>
         <div class="mt-6 border border-line bg-panel p-5 text-body">
           <p>$ git clone https://github.com/AungMyoKyaw/pi-setup.git</p>
-          <p>$ cd pi-setup &amp;&amp; ./scripts/audit.sh</p>
-          <p class="text-ink-dim">AUDIT CLEAN</p>
+          <p>$ cd pi-setup &amp;&amp; make verify</p>
+          <p class="text-ink-dim">FORMAT · AUDIT · TYPECHECK · TEST</p>
         </div>
       </section>
 

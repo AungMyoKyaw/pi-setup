@@ -48,26 +48,42 @@ Read SETUP.md in this repo and follow it to set up my pi coding agent.
 - Identity files (memory, agent instructions) only if you don't already
   have them
 
-Three profiles. Pick the one that matches how much you want:
+Three profiles, defined in [`setup.yaml`](setup.yaml):
 
-| Component                             | minimal | recommended | full |
-| ------------------------------------- | :-----: | :---------: | :--: |
-| `settings.json` (deep-merged)         |    ✓    |      ✓      |  ✓   |
-| Prompt templates (`/commands`)        |    ✓    |      ✓      |  ✓   |
-| Agent instructions + memory scaffold  |         |      ✓      |  ✓   |
-| Core extensions (3)                   |         |      ✓      |  ✓   |
-| Core skills (workflow, docs)          |         |      ✓      |  ✓   |
-| `SOUL.md` identity file (opinionated) |         |             |  ✓   |
-| All extensions (8, incl. brain + Jev) |         |             |  ✓   |
-| All skills (email, playwright, pdf…)  |         |             |  ✓   |
+| Component                                                      | minimal | recommended | full |
+| -------------------------------------------------------------- | :-----: | :---------: | :--: |
+| Settings (deep-merged) + `/commands` prompts                   |    ✓    |      ✓      |  ✓   |
+| Agent instructions + memory scaffold (preserve existing files) |    —    |      ✓      |  ✓   |
+| Core extensions (3)                                            |    —    |      ✓      |  ✓   |
+| Core skills (5)                                                |    —    |      ✓      |  ✓   |
+| Subagent definitions + system-prompt appendix                  |    —    |      ✓      |  ✓   |
+| Opinionated `SOUL.md` (skip if present)                        |    —    |      —      |  ✓   |
+| All extensions (8)                                             |    —    |      —      |  ✓   |
+| All skills (14)                                                |    —    |      —      |  ✓   |
 
-`recommended` is the sensible default. `full` adds an opinionated identity
-file (`SOUL.md`) and every available skill — pick it if you want the whole
-catalogue. Jev adds bounded plan/completion checkpoints and requires Pi 1.0.4+;
-classifier credentials are optional, and unavailable checks are reported.
-Native same-turn tool concurrency needs no parallel-tools configuration.
-Subagent definitions are included, but templates using a `subagent` tool
-require a compatible separately installed extension.
+- **Minimal**: merged settings and six prompt templates.
+- **Recommended**: minimal, global agent instructions/memory, three small
+  extensions, five workflow/documentation skills, four subagent definitions,
+  and a system-prompt appendix.
+- **Full**: recommended, plus opt-in `SOUL.md`, five additional extensions,
+  and nine additional skills.
+
+The three core extensions protect work started from the home/root directory,
+show usage in the footer, and notify when a request finishes. Full adds coding
+plan quota display, image optimization, Second Brain retrieval, per-request
+plan/TODO artifacts, and Jev quality checkpoints. Jev needs Pi 1.0.4+;
+classifier credentials are optional. Unavailable Jev checks are reported as
+unavailable, not passed. Native same-turn tool concurrency needs no extra
+configuration. Subagent definitions are files only; templates that invoke a
+`subagent` tool need a compatible separately installed extension.
+
+Recommended skills are `software-delivery-loop`, `grilling`, `grill-me`,
+`loop-me`, and `find-docs`. Full adds `exa-search`, `gws-email`,
+`image-metadata-sanitizer`, `playwright-cli`, `scribd-to-pdf`,
+`design-md`, `tauri-app`, `caveman`, and `impeccable`. Optional
+prerequisites include `EXA_API_KEY`, an authenticated `gws` CLI,
+`playwright-cli` on `PATH`, and Python 3 with Pillow (plus `requests` for
+Scribd). These gate individual skills only.
 
 ## Why not a script
 
@@ -82,9 +98,10 @@ script.
 
 ## Your stuff stays yours
 
-- **Never read, written, or uploaded:** `auth.json`, sessions, model caches,
-  trust state, your `memory/journal/`. Anything not in the manifest is
-  invisible to the installer.
+- **Never inspect, print, copy, or upload:** provider credentials
+  (`auth.json`), model caches, trust/spend/run state, sessions, or
+  `memory/journal/`. The installer follows the manifest; unrelated files stay
+  untouched.
 - **Every overwrite is backed up first** to `~/.pi-setup-backups/<timestamp>/`
   with the original path preserved. If anything surprises you, the previous
   version is one diff away.
@@ -96,7 +113,10 @@ script.
 ## Updating
 
 Re-run the same prompt anytime. The procedure is idempotent: settings
-re-merge, identity files skip, extensions and skills refresh with backups.
+re-merge, identity files skip, and extensions/skills refresh with backups. Setup
+checks for pi, git, Bun, and Python; missing optional tools are reported and
+only gate the components that need them. After installation, authenticate a
+provider with `/login` in pi and restart pi to load extensions and skills.
 
 Last week I added a skill to this repo, re-ran the prompt, and only the new
 skill landed — nothing else moved.
@@ -119,10 +139,9 @@ as-is or fork it into your own bootstrap.
    repos, machines, domains) to `.audit-deny` — one per line, gitignored —
    and the audit enforces them too.
 
-4. Or run the full local gate (`make verify`) which combines `prettier --check`,
+4. Run the full local gate (`make verify`) to run `prettier --check`,
    the audit, package-bearing extension typechecks, every extension's offline
-   tests in an isolated HOME using repository assets, and manifest/smoke
-   regression tests:
+   tests in an isolated HOME, and manifest/smoke regression tests:
 
    ```sh
    make verify
@@ -145,7 +164,7 @@ to check another profile. Never point the smoke harness at your real HOME.
 - **`.github/workflows/audit.yml`** — CI: audit + format check + extension
   install + type-check + tests, on every push and PR.
 - **`docs/`** — the [public landing page](https://aungmyokyaw.github.io/pi-setup/)
-  for non-agent readers.
+  for non-agent readers; `docs/DESIGN.md` records its visual system.
 
 ## License
 
