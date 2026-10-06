@@ -74,8 +74,8 @@ or `skip (missing dep)`. Show it unless pre-authorized.
 
 ### 4. Apply
 
-In this order: `settings` → `parallel-tools` → `prompts` → `agents-base` →
-`soul` → extensions → skills.
+In this order: `settings` → `prompts` → `agents-base` → `soul` → extensions →
+skills → `subagents` → `system-appendix` (only components in the selected profile).
 
 - **symlink** (`agents-base` `links:`): resolve `source` to an absolute path
   under `$HOME`. Resolve `target` likewise. The agent directory at `target`
@@ -94,11 +94,14 @@ In this order: `settings` → `parallel-tools` → `prompts` → `agents-base` �
   JSON. Merge recursively: objects merge key-by-key; scalars and arrays from
   the source replace the target; keys present only in the target survive.
   Back up the original, then write pretty-printed (2-space indent).
-- **copy** (prompts, parallel-tools): back up existing targets, then copy.
+- **copy** (prompts, subagents, system-appendix): back up existing targets, then copy.
 - **skip-if-exists** (agents-base, soul): copy only if the target does not
   exist. Existing identity/memory files belong to the user — never overwrite.
-- **extension**: copy `files/extensions/_shared` (if listed) and each listed
-  extension into `~/.pi/agent/extensions/`, backing up existing dirs. Then,
+  The full profile installs SOUL at `~/.pi/agent/SOUL.md`, the path referenced
+  by the bundled instructions.
+- **extension**: copy each listed extension into `~/.pi/agent/extensions/`,
+  backing up existing dirs. Exclude generated `node_modules`, lockfiles, and
+  caches from repository source copies. Then,
   in each installed extension dir that contains a `package.json`, run
   `bun install`. pi auto-discovers extensions in this directory at startup.
   If a copied `tsconfig.json` contains `~/.bun/...` type paths, optionally
@@ -124,15 +127,20 @@ Concise summary:
   - Restart pi for extensions and skills to load.
 - Anything you skipped under hard rule 2.
 
-## Versioning notes (1.0.2)
+## Versioning notes (1.0.4)
 
 - The default `lastChangelogVersion` shipped in `files/settings.json` tracks
   the latest pi release so the changelog modal does not re-fire after an
   install. If you maintain this repo, bump it in lockstep with pi releases.
-- Extensions with their own `package.json` (currently `auto-optimize-images`
-  and `safe-home-cwd`) carry `^1.0.2` of `@earendil-works/pi-coding-agent`.
-  Other extensions rely on the root `~/.pi/agent/node_modules` for resolution;
-  pi's loader handles this.
+- Extensions with their own `package.json` (`auto-optimize-images`,
+  `auto-todo`, `safe-home-cwd`, and `jev-quality-gate`) pin Pi development
+  dependencies to `1.0.4`. Pi supplies its SDK packages to extensions at runtime.
+- The full profile includes eight active extensions. Jev adds bounded plan and
+  completion checkpoints; an unavailable classifier is reported, not treated
+  as a verified pass. Its authenticated live test is opt-in.
+- Native same-turn tool concurrency replaces the retired parallel-tools RPC
+  configuration. Subagent definitions do not install a subagent tool; templates
+  using that tool require a compatible separately installed extension.
 - The `audit.sh` pattern for `Bearer` headers requires 32+ characters and the
   JWT pattern requires all three segments. If you add new token shapes, update
   both `scripts/audit.sh` and `.audit-deny`.

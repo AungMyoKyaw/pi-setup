@@ -58,13 +58,16 @@ Three profiles. Pick the one that matches how much you want:
 | Core extensions (3)                   |         |      ✓      |  ✓   |
 | Core skills (workflow, docs)          |         |      ✓      |  ✓   |
 | `SOUL.md` identity file (opinionated) |         |             |  ✓   |
-| All extensions (incl. brain capture)  |         |             |  ✓   |
+| All extensions (8, incl. brain + Jev) |         |             |  ✓   |
 | All skills (email, playwright, pdf…)  |         |             |  ✓   |
-| Parallel RPC model routes             |         |             |  ✓   |
 
 `recommended` is the sensible default. `full` adds an opinionated identity
 file (`SOUL.md`) and every available skill — pick it if you want the whole
-catalogue.
+catalogue. Jev adds bounded plan/completion checkpoints and requires Pi 1.0.4+;
+classifier credentials are optional, and unavailable checks are reported.
+Native same-turn tool concurrency needs no parallel-tools configuration.
+Subagent definitions are included, but templates using a `subagent` tool
+require a compatible separately installed extension.
 
 ## Why not a script
 
@@ -117,13 +120,18 @@ as-is or fork it into your own bootstrap.
    and the audit enforces them too.
 
 4. Or run the full local gate (`make verify`) which combines `prettier --check`,
-   the audit, and a per-extension install + type-check + test pass:
+   the audit, package-bearing extension typechecks, every extension's offline
+   tests in an isolated HOME using repository assets, and manifest/smoke
+   regression tests:
 
    ```sh
    make verify
    ```
 
 The same gate runs in CI on every push and PR (`.github/workflows/audit.yml`).
+Run `./scripts/smoke.sh` for a full-profile install into a disposable HOME,
+including dependency installation. Use `./scripts/smoke.sh /tmp/pi-setup-smoke recommended`
+to check another profile. Never point the smoke harness at your real HOME.
 
 ## Layout
 

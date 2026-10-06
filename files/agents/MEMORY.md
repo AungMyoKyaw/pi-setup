@@ -36,8 +36,8 @@ If a bash command (e.g. `pi`, `npm install`, long-running test) is unexpectedly 
 
 - Canonical location: `~/.agents/skills/<name>/SKILL.md`.
 - Never create or restore skills under the retired `~/.pi/agent/skills/` path.
-- Keep new skills and their supporting files in `~/.agents/skills/`; review
-  your vault's diff before committing.
+- Keep new skills and their supporting files in `~/.agents/skills/`; review the
+  configuration diff before committing.
 
 ## Pi extensions
 

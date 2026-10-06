@@ -28,17 +28,7 @@ profiles:
   recommended:
     [settings, prompts, agents-base, extensions-core, skills-core, subagents, system-appendix]
   full:
-    [
-      settings,
-      parallel-tools,
-      prompts,
-      agents-base,
-      soul,
-      extensions-all,
-      skills-all,
-      subagents,
-      system-appendix,
-    ]
+    [settings, prompts, agents-base, soul, extensions-all, skills-all, subagents, system-appendix]
 
 components:
   settings:
@@ -46,12 +36,6 @@ components:
     source: files/settings.json
     target: ~/.pi/agent/settings.json
     strategy: deep-merge
-
-  parallel-tools:
-    description: model routes for parallel RPC tools (scout/plan/review)
-    source: files/parallel-tools.json
-    target: ~/.pi/agent/parallel-tools.json
-    strategy: copy
 
   subagents:
     description: pi sub-agent definitions (scout, planner, worker, reviewer)
@@ -93,7 +77,7 @@ components:
   soul:
     description: identity/voice file. Opinionated and personal — opt-in.
     source: files/agents/SOUL.md
-    target: ~/.agents/SOUL.md
+    target: ~/.pi/agent/SOUL.md
     strategy: skip-if-exists
 
   extensions-core:
@@ -113,13 +97,13 @@ components:
         auto-optimize-images,
         slim-second-brain,
         auto-todo,
+        jev-quality-gate,
       ]
-    shared: [_shared]
 
   skills-core:
     description: workflow + documentation skills
     strategy: skill
-    skills: [software-delivery-loop, grilling, loop-me, find-docs]
+    skills: [software-delivery-loop, grilling, grill-me, loop-me, find-docs]
 
   skills-all:
     description: full skill set
@@ -145,7 +129,8 @@ components:
 requires:
   exa-search: "EXA_API_KEY environment variable"
   gws-email: "gws CLI authenticated to a Google account"
-  playwright-cli: "playwright CLI (npm i -g playwright or via npx)"
+  playwright-cli: "playwright-cli installed and available on PATH"
   image-metadata-sanitizer: "python3 with Pillow"
   scribd-to-pdf: "python3 with Pillow and requests"
   extensions: "bun (https://bun.sh) for extension dependencies"
+  jev-quality-gate: "Pi 1.0.4+ and an authenticated Jev classifier provider (optional; unavailable checks do not block work)"

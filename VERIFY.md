@@ -22,7 +22,8 @@ Run after applying the plan. Report each as pass / fail / skipped.
    done; echo DONE
    ```
 
-   `_shared` has no entry file by design; ignore it if flagged.
+   The full profile must include both `auto-todo/index.ts` and
+   `jev-quality-gate/index.ts`. Jev requires Pi 1.0.4 or newer.
 
 4. **Skills well-formed** (if profile included skills)
 
@@ -36,6 +37,8 @@ Run after applying the plan. Report each as pass / fail / skipped.
 
    ```sh
    ls ~/.agents/AGENTS.md ~/.agents/MEMORY.md 2>/dev/null; echo DONE
+   # Full profile only:
+   test -f ~/.pi/agent/SOUL.md && echo SOUL_OK
    ```
 
 6. **AGENTS.md linked into pi** (if profile included `agents-base`) — pi
@@ -58,7 +61,11 @@ Run after applying the plan. Report each as pass / fail / skipped.
    pi --version
    ```
 
-8. **End-to-end smoke** — only if a provider is already authenticated
+8. **Jev checkpoint availability** (full profile) — restart Pi or run
+   `/reload`, then `/jev-gate status`. If no classifier provider is authenticated,
+   report checks as unavailable; do not fabricate a pass or authenticate for the user.
+
+9. **End-to-end smoke** — only if a provider is already authenticated
    (check: `pi auth status` exits 0, or ask the user). Otherwise skip.
 
    ```sh
